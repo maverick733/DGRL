@@ -591,6 +591,130 @@
   .thermal-card .calc-row .value.warn { color: var(--warning); }
   .thermal-card .calc-row .value.fail { color: var(--danger); }
 
+  /* ===================== FORMEL-RECHENWEG ===================== */
+  .formula-block {
+    background: linear-gradient(135deg, #f7fbff 0%, #eef6ff 100%);
+    border: 1px solid #b8d4ec;
+    border-left: 5px solid var(--primary-light);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 0.9rem 0;
+    font-size: 0.85rem;
+  }
+
+  .formula-block h5 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .formula-block .formula-line {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px dashed #cfe0f0;
+  }
+
+  .formula-block .formula-line:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .formula-block .formula-name {
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 0.82rem;
+    margin-bottom: 0.2rem;
+    display: block;
+  }
+
+  .formula-block .formula-sym {
+    font-family: var(--mono);
+    background: #ffffff;
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    display: inline-block;
+    color: var(--primary-dark);
+    font-size: 0.82rem;
+    border: 1px solid #d6e4f0;
+    margin-bottom: 0.3rem;
+    white-space: pre-wrap;
+  }
+
+  .formula-block .formula-subst {
+    font-family: var(--mono);
+    background: #fffbea;
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    display: inline-block;
+    color: #7a5a00;
+    font-size: 0.82rem;
+    border: 1px solid #f0e0a8;
+    margin-bottom: 0.3rem;
+    white-space: pre-wrap;
+  }
+
+  .formula-block .formula-res {
+    font-family: var(--mono);
+    font-weight: 700;
+    color: #1e7e34;
+    font-size: 0.85rem;
+    display: inline-block;
+    margin-top: 0.15rem;
+  }
+
+  .formula-block .formula-ref {
+    font-size: 0.7rem;
+    color: var(--text-light);
+    font-family: var(--mono);
+    margin-left: 0.4rem;
+  }
+
+  .formula-block .formula-note {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-top: 0.25rem;
+  }
+
+  .formula-toggle {
+    background: #e8f0f8;
+    border: 1px solid #b8d4ec;
+    color: var(--primary);
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0.5rem 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.15s;
+  }
+
+  .formula-toggle:hover {
+    background: #d6e4f0;
+  }
+
+  .formula-toggle::before {
+    content: '📐';
+  }
+
+  .formula-section {
+    display: none;
+  }
+
+  .formula-section.visible {
+    display: block;
+  }
+
   @media (max-width: 768px) {
     .app-header { padding: 1rem 1.2rem; }
     .app-header h1 { font-size: 1.05rem; }
@@ -608,7 +732,7 @@
 <div class="app">
   <div class="app-header">
     <h1>⚙️ DGRL 2014/68/EU – Professioneller Auslegungsassistent</h1>
-    <div class="subtitle">Behälter-Skizze · Festigkeitsberechnung · Werkstoffe · Korrosion · Thermische Dehnung · Mohrscher Spannungskreis · Konformität</div>
+    <div class="subtitle">Behälter-Skizze · Festigkeitsberechnung · Werkstoffe · Korrosion · Thermische Dehnung · Mohrscher Spannungskreis · Vollständige Rechenwege · Konformität</div>
   </div>
 
   <div class="steps-bar" id="stepsBar">
@@ -654,6 +778,16 @@
 
       <div class="info-box" id="scopeInfo">
         <strong>Hinweis:</strong> Die Richtlinie gilt für PS > 0,5 bar und keine Ausnahme.
+      </div>
+
+      <div class="formula-block">
+        <h5>📐 Rechenweg: Anwendbarkeitsprüfung</h5>
+        <div class="formula-line">
+          <span class="formula-name">Anwendungsbedingung</span>
+          <div class="formula-sym">DGRL anwendbar ⇔ (PS &gt; 0,5 bar) ∧ (keine Ausnahme nach Art. 1 Abs. 2)</div>
+          <div class="formula-subst" id="f1-subst">PS = 16 bar → 16 &gt; 0,5 ✓</div>
+          <div class="formula-note" id="f1-note">Ergebnis: Richtlinie anwendbar.</div>
+        </div>
       </div>
 
       <div class="btn-row">
@@ -713,6 +847,26 @@
             <span class="badge" id="outCategory" style="font-size:1.4rem; padding: 0.5rem 1.5rem;">–</span>
           </div>
           <p style="font-size:0.78rem; color:var(--text-light); text-align:center;" id="outCategoryReason">–</p>
+        </div>
+      </div>
+
+      <div class="formula-block">
+        <h5>📐 Rechenweg: Einstufung nach Anhang II</h5>
+        <div class="formula-line">
+          <span class="formula-name">Berechnung Produkt PS·V</span>
+          <div class="formula-sym">PS·V = PS × V</div>
+          <div class="formula-subst" id="f2-subst-psv">PS·V = 16 bar × 500 L = 8000 bar·L</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Berechnung Produkt PS·DN</span>
+          <div class="formula-sym">PS·DN = PS × DN</div>
+          <div class="formula-subst" id="f2-subst-psdn">PS·DN = 16 bar × 100 = 1600 bar</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Kategorie-Zuordnung (Diagramm)</span>
+          <div class="formula-sym" id="f2-rule">Fluidgruppe 2, Behälter Gas: PS·V &gt; 50 → Kat. IV; &gt; 20 → III; &gt; 5 → II; sonst I</div>
+          <div class="formula-subst" id="f2-subst-cat">PS·V = 8000 &gt; 50 → Kategorie IV</div>
+          <div class="formula-res" id="f2-res">→ Kategorie IV</div>
         </div>
       </div>
 
@@ -799,6 +953,40 @@
         </div>
       </div>
 
+      <div class="formula-block">
+        <h5>📐 Rechenweg: Geometrische Kennwerte</h5>
+        <div class="formula-line">
+          <span class="formula-name">Innendurchmesser</span>
+          <div class="formula-sym">Di = Da − 2·s</div>
+          <div class="formula-subst" id="f3-subst-di">Di = 800 − 2·8 = 784,0 mm</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Volumen (Zylinder)</span>
+          <div class="formula-sym">V = (π/4) · Di² · L</div>
+          <div class="formula-subst" id="f3-subst-v">V = (π/4) · (784 mm)² · 2000 mm = 9,66·10⁸ mm³ ≈ 965,6 L</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Volumen (Kugel)</span>
+          <div class="formula-sym">V = (π/6) · Di³</div>
+          <div class="formula-note">Wird nur bei Kugelbehälter verwendet.</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Oberfläche (Zylinder)</span>
+          <div class="formula-sym">A = π · Da · L + 2 · (π/4) · Da²</div>
+          <div class="formula-subst" id="f3-subst-a">A = π · 0,8 · 2,0 + 2·(π/4)·0,8² ≈ 6,03 m²</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Masse (leer, Zylinder)</span>
+          <div class="formula-sym">m = (π/4) · (Da² − Di²) · L · ρ + 2 · (π/6) · (Da³ − Di³) · ρ</div>
+          <div class="formula-subst" id="f3-subst-m">m ≈ 347,6 kg (ρ = 7850 kg/m³)</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Prüfdruck (Anh. I Nr. 7.4)</span>
+          <div class="formula-sym">PT = max(1,25·PS ; 1,43·PS)</div>
+          <div class="formula-subst" id="f3-subst-pt">PT = max(1,25·16 ; 1,43·16) = max(20 ; 22,88) = 22,9 bar</div>
+        </div>
+      </div>
+
       <div class="btn-row">
         <button class="btn btn-secondary" onclick="goToStep(2)">← Zurück</button>
         <button class="btn btn-primary" onclick="goToStep(4)">Weiter zur Auslegung →</button>
@@ -846,6 +1034,30 @@
         </div>
       </div>
 
+      <div class="formula-block">
+        <h5>📐 Rechenweg: Werkstoffkennwerte & zulässige Spannung</h5>
+        <div class="formula-line">
+          <span class="formula-name">Interpolation Re(T), Rm(T), E(T)</span>
+          <div class="formula-sym">X(T) = X(T₁) + (X(T₂) − X(T₁)) · (T − T₁) / (T₂ − T₁)</div>
+          <div class="formula-subst" id="f4-subst-interp">Re(120°C) = 200 + (185−200)·(120−100)/(150−100) = 194,0 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Zulässige Spannung – Kohlenstoffstahl</span>
+          <div class="formula-sym">σ_zul = min( Re(T) · 2/3 ; Rm · 5/12 )</div>
+          <div class="formula-subst" id="f4-subst-sigmac">σ_zul = min( 194,0 · 0,667 ; 360 · 0,417 ) = min(129,3 ; 150,0) = 129,3 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Zulässige Spannung – Edelstahl</span>
+          <div class="formula-sym">σ_zul = min( Re(T) · 2/3 ; Rm(T) · 1/3 )</div>
+          <div class="formula-note">Wird bei Auswahl eines Edelstahls verwendet.</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Zulässige Spannung – Aluminium</span>
+          <div class="formula-sym">σ_zul = min( Re(T) · 2/3 ; Rm · 5/12 )</div>
+          <div class="formula-note">Wird bei Auswahl von Aluminium verwendet.</div>
+        </div>
+      </div>
+
       <h3>4.2 Korrosionszuschlag (Anh. I Nr. 2.6 & 4.1 b)</h3>
       <div class="calc-grid">
         <div class="calc-card">
@@ -888,6 +1100,25 @@
         </div>
       </div>
 
+      <div class="formula-block">
+        <h5>📐 Rechenweg: Korrosionszuschlag</h5>
+        <div class="formula-line">
+          <span class="formula-name">Korrosionszuschlag</span>
+          <div class="formula-sym">c₁ = v_korr · t_Leben</div>
+          <div class="formula-subst" id="f4-subst-c1">c₁ = 0,10 mm/Jahr · 20 Jahre = 2,00 mm</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Fertigungstoleranz</span>
+          <div class="formula-sym">c₂ = 0,5 mm (Standard-Walztoleranz)</div>
+          <div class="formula-subst" id="f4-subst-c2">c₂ = 0,50 mm</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Gesamtzuschlag</span>
+          <div class="formula-sym">c = c₁ + c₂</div>
+          <div class="formula-subst" id="f4-subst-c">c = 2,00 + 0,50 = 2,50 mm</div>
+        </div>
+      </div>
+
       <h3>4.3 Wanddickenberechnung</h3>
       <div class="calc-grid">
         <div class="calc-card">
@@ -913,6 +1144,60 @@
           <div class="calc-row"><span class="label">Längsspannung σ_z</span><span class="value" id="outSigZ">–</span></div>
           <div class="calc-row"><span class="label">Vergleichsspannung σ_v</span><span class="value" id="outSigV">–</span></div>
           <div class="calc-row"><span class="label">Zulässige Spannung</span><span class="value" id="outSigmaZul2">–</span></div>
+        </div>
+      </div>
+
+      <div class="formula-block">
+        <h5>📐 Rechenweg: Wanddickenberechnung (Kesselformel)</h5>
+        <div class="formula-line">
+          <span class="formula-name">Erforderliche Wanddicke (Kesselformel)</span>
+          <div class="formula-sym">s₀ = (Pc · Da) / (20 · σ_zul · v + Pc)</div>
+          <div class="formula-subst" id="f4-subst-s0">s₀ = (16 · 800) / (20 · 129,3 · 0,85 + 16) = 12800 / 2214,1 = 5,78 mm</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Mindestwanddicke</span>
+          <div class="formula-sym">s_min = s₀ + c</div>
+          <div class="formula-subst" id="f4-subst-smin">s_min = 5,78 + 2,50 = 8,28 mm</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Gewählte Wanddicke (aufgerundet auf 0,5 mm)</span>
+          <div class="formula-sym">s_gew = ceil(s_min · 2) / 2</div>
+          <div class="formula-subst" id="f4-subst-sgew">s_gew = ceil(8,28 · 2) / 2 = 17/2 = 8,50 mm</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Sicherheitsreserve</span>
+          <div class="formula-sym">Reserve = (s_gew − s_min) / s_min · 100 %</div>
+          <div class="formula-subst" id="f4-subst-res">Reserve = (8,50 − 8,28) / 8,28 · 100 % = 2,7 %</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Membranspannung (Nachweis)</span>
+          <div class="formula-sym">σ_m = (Pc · (Da − s_gew)) / (20 · s_gew)</div>
+          <div class="formula-subst" id="f4-subst-sm">σ_m = (16 · (800 − 8,50)) / (20 · 8,50) = 12664 / 170 = 74,5 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Auslastung</span>
+          <div class="formula-sym">Auslastung = σ_m / σ_zul · 100 %</div>
+          <div class="formula-subst" id="f4-subst-util">Auslastung = 74,5 / 129,3 · 100 % = 57,6 % → ✅ Nachweis erbracht</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Umfangsspannung</span>
+          <div class="formula-sym">σ_θ = (Pc · (Da − s_gew)) / (20 · s_gew)</div>
+          <div class="formula-subst" id="f4-subst-stheta">σ_θ = 74,5 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Längsspannung</span>
+          <div class="formula-sym">σ_z = (Pc · (Da − s_gew)) / (40 · s_gew) = σ_θ / 2</div>
+          <div class="formula-subst" id="f4-subst-sz">σ_z = 74,5 / 2 = 37,3 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Vergleichsspannung (v. Mises, 2D)</span>
+          <div class="formula-sym">σ_v = √(σ_θ² + σ_z² − σ_θ · σ_z)</div>
+          <div class="formula-subst" id="f4-subst-sv">σ_v = √(74,5² + 37,3² − 74,5·37,3) = 64,6 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Hydrostatischer Prüfdruck</span>
+          <div class="formula-sym">PT = max(1,25 · Pc ; 1,43 · Pc)</div>
+          <div class="formula-subst" id="f4-subst-pt">PT = max(20,0 ; 22,9) = 22,9 bar</div>
         </div>
       </div>
 
@@ -971,6 +1256,65 @@
         </div>
       </div>
 
+      <div class="formula-block">
+        <h5>📐 Rechenweg: Thermische Dehnung & thermische Spannungen</h5>
+        <div class="formula-line">
+          <span class="formula-name">Temperaturdifferenz</span>
+          <div class="formula-sym">ΔT = T₁ − T₀</div>
+          <div class="formula-subst" id="f4b-subst-dt">ΔT = 120 − 20 = 100 K</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Thermische Dehnung</span>
+          <div class="formula-sym">ε_th = α · ΔT</div>
+          <div class="formula-subst" id="f4b-subst-eps">ε_th = 12,0·10⁻⁶ /K · 100 K = 1,200·10⁻³ = 0,1200 %</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Axiale Dehnung (freie Ausdehnung)</span>
+          <div class="formula-sym">ε_axial = ε_th</div>
+          <div class="formula-subst" id="f4b-subst-epsax">ε_axial = 0,1200 %</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Radiale Dehnung (freie Ausdehnung)</span>
+          <div class="formula-sym">ε_radial = ε_th</div>
+          <div class="formula-subst" id="f4b-subst-epsrad">ε_radial = 0,1200 %</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Längenänderung</span>
+          <div class="formula-sym">ΔL = ε_axial · L</div>
+          <div class="formula-subst" id="f4b-subst-dl">ΔL = 1,200·10⁻³ · 2000 mm = 2,40 mm</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Durchmesseränderung</span>
+          <div class="formula-sym">ΔDa = ε_radial · Da</div>
+          <div class="formula-subst" id="f4b-subst-dda">ΔDa = 1,200·10⁻³ · 800 mm = 0,96 mm</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Wanddickenänderung</span>
+          <div class="formula-sym">Δs = ε_radial · s</div>
+          <div class="formula-subst" id="f4b-subst-ds">Δs = 1,200·10⁻³ · 8,50 mm = 0,010 mm</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Thermische Spannung (behindert)</span>
+          <div class="formula-sym">σ_th = E · ε_th</div>
+          <div class="formula-subst" id="f4b-subst-sth">σ_th = 198·10³ MPa · 1,200·10⁻³ = 237,6 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Axiale thermische Spannung (behindert, ε quer = 0)</span>
+          <div class="formula-sym">σ_th,ax = E · α · ΔT / (1 − ν)</div>
+          <div class="formula-subst" id="f4b-subst-sthax">σ_th,ax = 198000 · 12·10⁻⁶ · 100 / (1 − 0,3) = 339,4 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Radiale thermische Spannung (behindert)</span>
+          <div class="formula-sym">σ_th,rad = E · α · ΔT / (1 − ν)</div>
+          <div class="formula-subst" id="f4b-subst-sthrad">σ_th,rad = 339,4 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Vergleichsspannung (thermisch, v. Mises)</span>
+          <div class="formula-sym">σ_th,V = √(σ_ax² + σ_tan² + σ_rad² − σ_ax·σ_tan − σ_tan·σ_rad − σ_rad·σ_ax)</div>
+          <div class="formula-subst" id="f4b-subst-sthv">σ_th,V = 339,4 MPa</div>
+        </div>
+      </div>
+
       <h3>4.4c Mohrscher Spannungskreis (Anh. I Nr. 7.1.2)</h3>
       <div class="mohr-container" id="mohrContainer">
         <!-- Mohr-Kreis wird hier eingefügt -->
@@ -999,6 +1343,70 @@
         </div>
       </div>
 
+      <div class="formula-block">
+        <h5>📐 Rechenweg: Mohrscher Spannungskreis & Hauptspannungen</h5>
+        <div class="formula-line">
+          <span class="formula-name">Tangentialspannung (Innendruck)</span>
+          <div class="formula-sym">σ_θ = (Pc · Di) / (2 · s)</div>
+          <div class="formula-subst" id="f4c-subst-stheta">σ_θ = (16 bar · 784 mm) / (2 · 8,5 mm) → (16·0,1 MPa · 784) / 17 = 73,8 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Axialspannung (Innendruck)</span>
+          <div class="formula-sym">σ_ax = (Pc · Di) / (4 · s)</div>
+          <div class="formula-subst" id="f4c-subst-sax">σ_ax = (16·0,1 MPa · 784) / (4 · 8,5) = 36,9 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Radialspannung (Innendruck, vereinfacht)</span>
+          <div class="formula-sym">σ_rad = −Pc · 0,1 (Innendruck auf Innenwand)</div>
+          <div class="formula-subst" id="f4c-subst-srad">σ_rad = −16 · 0,1 = −1,6 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Gesamtspannungen inkl. thermischer Anteile</span>
+          <div class="formula-sym">σ_x = σ_ax + σ_th,ax ; σ_y = σ_θ + σ_th,tan ; σ_z = σ_rad + σ_th,rad</div>
+          <div class="formula-subst" id="f4c-subst-total">σ_x = 36,9 + 339,4 = 376,3 MPa ; σ_y = 73,8 + 339,4 = 413,2 MPa ; σ_z = −1,6 + 339,4 = 337,8 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Mittelpunkt des Mohr-Kreises (x-y-Ebene)</span>
+          <div class="formula-sym">σ_m = (σ_x + σ_y) / 2</div>
+          <div class="formula-subst" id="f4c-subst-sm">σ_m = (376,3 + 413,2) / 2 = 394,8 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Radius des Mohr-Kreises</span>
+          <div class="formula-sym">R = √( ((σ_x − σ_y)/2)² + τ_xy² )</div>
+          <div class="formula-subst" id="f4c-subst-r">R = √( ((376,3 − 413,2)/2)² + 0² ) = 18,4 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Hauptspannungen (2D in x-y-Ebene)</span>
+          <div class="formula-sym">σ₁,₂ = σ_m ± R ; σ₃ = σ_z</div>
+          <div class="formula-subst" id="f4c-subst-haupt">σ₁ = 394,8 + 18,4 = 413,2 MPa ; σ₂ = 394,8 − 18,4 = 376,3 MPa ; σ₃ = 337,8 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Sortierung der Hauptspannungen</span>
+          <div class="formula-sym">σ₁ ≥ σ₂ ≥ σ₃</div>
+          <div class="formula-subst" id="f4c-subst-sort">σ₁ = 413,2 MPa ; σ₂ = 376,3 MPa ; σ₃ = 337,8 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Maximale Schubspannung</span>
+          <div class="formula-sym">τ_max = (σ₁ − σ₃) / 2</div>
+          <div class="formula-subst" id="f4c-subst-taumax">τ_max = (413,2 − 337,8) / 2 = 37,7 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Vergleichsspannung (v. Mises)</span>
+          <div class="formula-sym">σ_vM = √( ½ · [(σ₁−σ₂)² + (σ₂−σ₃)² + (σ₃−σ₁)²] )</div>
+          <div class="formula-subst" id="f4c-subst-vm">σ_vM = √( ½ · [(413,2−376,3)² + (376,3−337,8)² + (337,8−413,2)²] ) = 65,5 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Vergleichsspannung (Tresca)</span>
+          <div class="formula-sym">σ_vT = σ₁ − σ₃</div>
+          <div class="formula-subst" id="f4c-subst-vt">σ_vT = 413,2 − 337,8 = 75,4 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Auslastung</span>
+          <div class="formula-sym">Auslastung = σ_vM / σ_zul · 100 %</div>
+          <div class="formula-subst" id="f4c-subst-util">Auslastung = 65,5 / 129,3 · 100 % = 50,6 % → ✅ Nachweis erbracht</div>
+        </div>
+      </div>
+
       <h3>4.5 Duktilitätsnachweis (Anh. I Nr. 7.5)</h3>
       <div class="calc-grid">
         <div class="calc-card">
@@ -1021,6 +1429,24 @@
           <div class="calc-row"><span class="label">Bruchdehnung ≥ 14 %</span><span class="value" id="outElongResult">–</span></div>
           <div class="calc-row"><span class="label">Kerbschlagarbeit ≥ 27 J</span><span class="value" id="outImpactResult">–</span></div>
           <div class="calc-row"><span class="label">Gesamtergebnis</span><span class="value" id="outDuctilityResult">–</span></div>
+        </div>
+      </div>
+
+      <div class="formula-block">
+        <h5>📐 Rechenweg: Duktilitätsnachweis (Anh. I Nr. 7.5)</h5>
+        <div class="formula-line">
+          <span class="formula-name">Bruchdehnung</span>
+          <div class="formula-sym">A ≥ 14 %</div>
+          <div class="formula-subst" id="f4d-subst-a">A = 22 % ≥ 14 % → ✅</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Kerbschlagarbeit</span>
+          <div class="formula-sym">KV ≥ 27 J (bei T_min)</div>
+          <div class="formula-subst" id="f4d-subst-kv">KV = 45 J ≥ 27 J → ✅</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Gesamtbewertung</span>
+          <div class="formula-res" id="f4d-subst-total">→ Duktil – Anh. I Nr. 7.5 erfüllt</div>
         </div>
       </div>
 
@@ -1065,6 +1491,20 @@
 
       <h3>5.3 Spannungs-Dehnungs-Diagramm</h3>
       <div class="diagram-container" id="stressStrainDiagram"></div>
+
+      <div class="formula-block">
+        <h5>📐 Rechenweg: Temperaturinterpolation</h5>
+        <div class="formula-line">
+          <span class="formula-name">Lineare Interpolation zwischen Stützstellen</span>
+          <div class="formula-sym">X(T) = X(T₁) + (X(T₂) − X(T₁)) · (T − T₁) / (T₂ − T₁)</div>
+          <div class="formula-subst" id="f5-subst-interp">Beispiel Re(120°C) für P235GH: 200 + (185−200)·(120−100)/(150−100) = 194,0 MPa</div>
+        </div>
+        <div class="formula-line">
+          <span class="formula-name">Zulässige Spannung σ_zul (werkstoffabhängig)</span>
+          <div class="formula-sym">σ_zul = min( Re(T)·2/3 ; Rm·5/12 )  [Kohlenstoffstahl]<br>σ_zul = min( Re(T)·2/3 ; Rm(T)·1/3 )  [Edelstahl]<br>σ_zul = min( Re(T)·2/3 ; Rm·5/12 )  [Aluminium]</div>
+          <div class="formula-subst" id="f5-subst-sigmazul">Beispiel P235GH bei 120 °C: σ_zul = min(194,0·0,667 ; 360·0,417) = 129,3 MPa</div>
+        </div>
+      </div>
 
       <div class="btn-row">
         <button class="btn btn-secondary" onclick="goToStep(4)">← Zurück</button>
@@ -1112,6 +1552,16 @@
           <div class="info-box warning" style="margin-top:0.6rem;">
             <strong>Hinweis:</strong> Module B, D, E, F, G, H, H1 erfordern eine notifizierte Stelle.
           </div>
+        </div>
+      </div>
+
+      <div class="formula-block">
+        <h5>📐 Rechenweg: Modulzuordnung</h5>
+        <div class="formula-line">
+          <span class="formula-name">Zuordnung nach Kategorie</span>
+          <div class="formula-sym" id="f6-subst-rule">Kategorie IV → Module B+D, B+F, G, H1</div>
+          <div class="formula-subst" id="f6-subst-cat">Kategorie IV → gewählt: B+D</div>
+          <div class="formula-note">Module B, D, E, F, G, H, H1 erfordern eine notifizierte Stelle (Art. 14).</div>
         </div>
       </div>
 
@@ -1186,7 +1636,7 @@
   'use strict';
 
   // ============================================================
-  // WERKSTOFFDATENBANK (erweitert)
+  // WERKSTOFFDATENBANK
   // ============================================================
   const materials = {
     'P235GH': {
@@ -1411,9 +1861,6 @@
   let selectedModule = 'A';
   let calcResults = {};
 
-  // ============================================================
-  // DOM REFS
-  // ============================================================
   const panels = {
     1: document.getElementById('panel-1'),
     2: document.getElementById('panel-2'),
@@ -1426,6 +1873,12 @@
   };
 
   const stepIndicators = document.querySelectorAll('.step-indicator');
+
+  // Hilfsfunktion zum sicheren Setzen von Text
+  function setText(id, txt) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = txt;
+  }
 
   // ============================================================
   // NAVIGATION
@@ -1494,6 +1947,26 @@
   };
 
   // ============================================================
+  // SCHRITT 1: ANWENDBARKEIT
+  // ============================================================
+  function updateApplicabilityFormulas() {
+    const ps = parseFloat(document.getElementById('inputPS').value) || 0;
+    const exclusion = document.querySelector('input[name="exclusion"]:checked').value;
+    const subst = document.getElementById('f1-subst');
+    const note = document.getElementById('f1-note');
+    if (!subst || !note) return;
+
+    subst.textContent = `PS = ${ps.toFixed(1)} bar  →  ${ps > 0.5 ? '> 0,5 ✓' : '≤ 0,5 ✗'}   |   Ausnahme: ${exclusion === 'ja' ? 'ja ✗' : 'nein ✓'}`;
+    if (ps > 0.5 && exclusion === 'nein') {
+      note.textContent = 'Ergebnis: Richtlinie anwendbar.';
+      note.style.color = '#1e7e34';
+    } else {
+      note.textContent = 'Ergebnis: Richtlinie NICHT anwendbar.';
+      note.style.color = '#c0392b';
+    }
+  }
+
+  // ============================================================
   // EINSTUFUNG
   // ============================================================
   function calculateClassification() {
@@ -1505,14 +1978,17 @@
 
     let category = 'I';
     let reason = '';
+    let ruleText = '';
 
     if (deviceType === 'befeuerte') {
       if (v > 2 && ps > 0.5) {
         category = 'IV';
         reason = 'Befeuerte Geräte mit V > 2 L und Überhitzungsrisiko.';
+        ruleText = 'V > 2 L und PS > 0,5 bar → Kat. IV';
       } else {
         category = 'I';
         reason = 'Kleine befeuerte Geräte.';
+        ruleText = 'V ≤ 2 L oder PS ≤ 0,5 bar → Kat. I';
       }
     } else if (deviceType.includes('behaelter')) {
       const isGas = deviceType.includes('gas');
@@ -1522,11 +1998,13 @@
           else if (ps > 50 || (v > 1 && ps * v > 10)) category = 'III';
           else if (ps > 10 || (v > 1 && ps * v > 2)) category = 'II';
           else category = 'I';
+          ruleText = 'Gruppe 1, Behälter Gas: PS>200 oder PS·V>25 → IV; PS>50 oder PS·V>10 → III; PS>10 oder PS·V>2 → II; sonst I';
         } else {
           if (ps > 1000 || (v > 1 && ps * v > 50)) category = 'IV';
           else if (ps > 200 || (v > 1 && ps * v > 20)) category = 'III';
           else if (ps > 10 || (v > 1 && ps * v > 5)) category = 'II';
           else category = 'I';
+          ruleText = 'Gruppe 2, Behälter Gas: PS>1000 oder PS·V>50 → IV; PS>200 oder PS·V>20 → III; PS>10 oder PS·V>5 → II; sonst I';
         }
         reason = 'Behälter für Gase/Dämpfe (Diagramm 1/2), Fluidgruppe ' + fluidGroup + '.';
       } else {
@@ -1535,11 +2013,13 @@
           else if (ps > 100 || (v > 1 && ps * v > 50)) category = 'III';
           else if (ps > 10 || (v > 1 && ps * v > 5)) category = 'II';
           else category = 'I';
+          ruleText = 'Gruppe 1, Behälter Flüssig: PS>500 oder PS·V>200 → IV; PS>100 oder PS·V>50 → III; PS>10 oder PS·V>5 → II; sonst I';
         } else {
           if (ps > 1000 || (v > 1 && ps * v > 10000)) category = 'IV';
           else if (ps > 100 || (v > 1 && ps * v > 1000)) category = 'III';
           else if (ps > 10 || (v > 1 && ps * v > 100)) category = 'II';
           else category = 'I';
+          ruleText = 'Gruppe 2, Behälter Flüssig: PS>1000 oder PS·V>10000 → IV; PS>100 oder PS·V>1000 → III; PS>10 oder PS·V>100 → II; sonst I';
         }
         reason = 'Behälter für Flüssigkeiten (Diagramm 3/4), Fluidgruppe ' + fluidGroup + '.';
       }
@@ -1551,11 +2031,13 @@
           else if (dn > 50 || (dn > 25 && ps * dn > 1000)) category = 'III';
           else if (dn > 25) category = 'II';
           else category = 'I';
+          ruleText = 'Gruppe 1, Rohrleitung Gas: DN>100 oder PS·DN>3500 → IV; DN>50 oder PS·DN>1000 → III; DN>25 → II; sonst I';
         } else {
           if (dn > 350 || (dn > 100 && ps * dn > 5000)) category = 'IV';
           else if (dn > 100 || (dn > 32 && ps * dn > 1000)) category = 'III';
           else if (dn > 32 && ps * dn > 350) category = 'II';
           else category = 'I';
+          ruleText = 'Gruppe 2, Rohrleitung Gas: DN>350 oder PS·DN>5000 → IV; DN>100 oder PS·DN>1000 → III; DN>32 und PS·DN>350 → II; sonst I';
         }
         reason = 'Rohrleitungen für Gase/Dämpfe (Diagramm 6/7), Fluidgruppe ' + fluidGroup + '.';
       } else {
@@ -1563,10 +2045,12 @@
           if (dn > 100 || (dn > 25 && ps * dn > 2000)) category = 'III';
           else if (dn > 25 && ps * dn > 500) category = 'II';
           else category = 'I';
+          ruleText = 'Gruppe 1, Rohrleitung Flüssig: DN>100 oder PS·DN>2000 → III; DN>25 und PS·DN>500 → II; sonst I';
         } else {
           if (dn > 200 && ps > 10 && ps * dn > 5000) category = 'III';
           else if (dn > 200 && ps > 10 && ps * dn > 1000) category = 'II';
           else category = 'I';
+          ruleText = 'Gruppe 2, Rohrleitung Flüssig: DN>200 und PS>10 und PS·DN>5000 → III; DN>200 und PS>10 und PS·DN>1000 → II; sonst I';
         }
         reason = 'Rohrleitungen für Flüssigkeiten (Diagramm 8/9), Fluidgruppe ' + fluidGroup + '.';
       }
@@ -1574,16 +2058,26 @@
 
     classification = { category, reason, ps, v, dn, fluidGroup, deviceType };
 
-    document.getElementById('outPS').textContent = ps.toFixed(1) + ' bar';
-    document.getElementById('outV').textContent = v.toFixed(1) + ' L';
-    document.getElementById('outDN').textContent = dn.toFixed(0);
-    document.getElementById('outPSV').textContent = (ps * v).toFixed(1) + ' bar·L';
-    document.getElementById('outPSDN').textContent = (ps * dn).toFixed(0) + ' bar';
-    document.getElementById('outFluid').textContent = 'Gruppe ' + fluidGroup;
-    document.getElementById('outCategory').textContent = 'Kategorie ' + category;
-    document.getElementById('outCategory').className = 'badge ' +
-      (category === 'IV' ? 'red' : category === 'III' ? 'orange' : category === 'II' ? 'blue' : 'green');
-    document.getElementById('outCategoryReason').textContent = reason;
+    setText('outPS', ps.toFixed(1) + ' bar');
+    setText('outV', v.toFixed(1) + ' L');
+    setText('outDN', dn.toFixed(0));
+    setText('outPSV', (ps * v).toFixed(1) + ' bar·L');
+    setText('outPSDN', (ps * dn).toFixed(0) + ' bar');
+    setText('outFluid', 'Gruppe ' + fluidGroup);
+    setText('outCategory', 'Kategorie ' + category);
+    const catEl = document.getElementById('outCategory');
+    if (catEl) {
+      catEl.className = 'badge ' +
+        (category === 'IV' ? 'red' : category === 'III' ? 'orange' : category === 'II' ? 'blue' : 'green');
+    }
+    setText('outCategoryReason', reason);
+
+    // Formel-Block aktualisieren
+    setText('f2-subst-psv', `PS·V = ${ps.toFixed(2)} bar × ${v.toFixed(2)} L = ${(ps*v).toFixed(2)} bar·L`);
+    setText('f2-subst-psdn', `PS·DN = ${ps.toFixed(2)} bar × ${dn.toFixed(0)} = ${(ps*dn).toFixed(0)} bar`);
+    setText('f2-rule', ruleText);
+    setText('f2-subst-cat', `PS·V = ${(ps*v).toFixed(0)} bar·L  →  ${category === 'IV' ? '> 50' : category === 'III' ? '> 20' : category === 'II' ? '> 5' : '≤ 5'}  → Kategorie ${category}`);
+    setText('f2-res', `→ Kategorie ${category}`);
 
     calcResults.category = category;
   }
@@ -1593,6 +2087,7 @@
   // ============================================================
   function updateDiagram() {
     const container = document.getElementById('diagramContainer');
+    if (!container) return;
     const ps = parseFloat(document.getElementById('inputPS').value) || 0;
     const v = parseFloat(document.getElementById('inputV').value) || 0;
     const dn = parseFloat(document.getElementById('inputDN').value) || 0;
@@ -1666,10 +2161,11 @@
   }
 
   // ============================================================
-  // BEHÄLTER-SKIZZE (SVG)
+  // BEHÄLTER-SKIZZE
   // ============================================================
   function drawVesselSketch() {
     const container = document.getElementById('sketchContainer');
+    if (!container) return;
     const Da = parseFloat(document.getElementById('inputDa').value) || 800;
     const L = parseFloat(document.getElementById('inputL').value) || 2000;
     const s = parseFloat(document.getElementById('inputS').value) || 8;
@@ -1707,18 +2203,31 @@
 
     const PT = Math.max(1.25 * PS, 1.43 * PS) * 1.0;
 
-    document.getElementById('skDa').textContent = Da.toFixed(0) + ' mm';
-    document.getElementById('skDi').textContent = Di.toFixed(1) + ' mm';
-    document.getElementById('skL').textContent = L.toFixed(0) + ' mm';
-    document.getElementById('skS').textContent = s.toFixed(1) + ' mm';
-    document.getElementById('skV').textContent = V.toFixed(1) + ' L';
-    document.getElementById('skA').textContent = A.toFixed(2) + ' m²';
-    document.getElementById('skMass').textContent = mass.toFixed(1) + ' kg';
-    document.getElementById('skMedium').textContent = medium;
-    document.getElementById('skPc').textContent = Pc.toFixed(1) + ' bar';
-    document.getElementById('skT').textContent = T.toFixed(0) + ' °C';
-    document.getElementById('skPS').textContent = PS.toFixed(1) + ' bar';
-    document.getElementById('skPT').textContent = PT.toFixed(1) + ' bar';
+    setText('skDa', Da.toFixed(0) + ' mm');
+    setText('skDi', Di.toFixed(1) + ' mm');
+    setText('skL', L.toFixed(0) + ' mm');
+    setText('skS', s.toFixed(1) + ' mm');
+    setText('skV', V.toFixed(1) + ' L');
+    setText('skA', A.toFixed(2) + ' m²');
+    setText('skMass', mass.toFixed(1) + ' kg');
+    setText('skMedium', medium);
+    setText('skPc', Pc.toFixed(1) + ' bar');
+    setText('skT', T.toFixed(0) + ' °C');
+    setText('skPS', PS.toFixed(1) + ' bar');
+    setText('skPT', PT.toFixed(1) + ' bar');
+
+    // Formel-Block Schritt 3 aktualisieren
+    setText('f3-subst-di', `Di = ${Da} − 2·${s} = ${Di.toFixed(1)} mm`);
+    if (vesselType === 'kugel') {
+      setText('f3-subst-v', `V = (π/6) · (${Di.toFixed(1)} mm)³ = ${V.toFixed(1)} L`);
+      setText('f3-subst-a', `A = π · (${Da} mm)² = ${A.toFixed(2)} m²`);
+      setText('f3-subst-m', `m ≈ ${mass.toFixed(1)} kg (ρ = 7850 kg/m³)`);
+    } else {
+      setText('f3-subst-v', `V = (π/4) · (${Di.toFixed(1)} mm)² · ${L} mm = ${V.toFixed(1)} L`);
+      setText('f3-subst-a', `A = π · ${(Da/1000).toFixed(2)} · ${(L/1000).toFixed(2)} + 2·(π/4)·${(Da/1000).toFixed(2)}² = ${A.toFixed(2)} m²`);
+      setText('f3-subst-m', `m ≈ ${mass.toFixed(1)} kg (ρ = 7850 kg/m³)`);
+    }
+    setText('f3-subst-pt', `PT = max(1,25·${PS} ; 1,43·${PS}) = max(${(1.25*PS).toFixed(2)} ; ${(1.43*PS).toFixed(2)}) = ${PT.toFixed(1)} bar`);
 
     let svg = '';
     if (vesselType === 'kugel') {
@@ -1758,9 +2267,6 @@
     svg += `<defs>
       <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
         <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#eef2f7" stroke-width="0.5"/>
-      </pattern>
-      <pattern id="hatch" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
-        <line x1="0" y1="0" x2="0" y2="8" stroke="#1a5a82" stroke-width="1"/>
       </pattern>
     </defs>`;
     svg += `<rect x="0" y="0" width="${W}" height="${H}" fill="url(#grid)"/>`;
@@ -1951,6 +2457,16 @@
     return obj[keys[0]];
   }
 
+  function findBracketKeys(obj, t) {
+    const keys = Object.keys(obj).map(Number).sort((a,b) => a-b);
+    if (t <= keys[0]) return [keys[0], keys[0]];
+    if (t >= keys[keys.length-1]) return [keys[keys.length-1], keys[keys.length-1]];
+    for (let i = 0; i < keys.length-1; i++) {
+      if (t >= keys[i] && t <= keys[i+1]) return [keys[i], keys[i+1]];
+    }
+    return [keys[0], keys[0]];
+  }
+
   function calculateMaterialValues() {
     const matKey = document.getElementById('materialSelect').value;
     const T = parseFloat(document.getElementById('inputT').value) || 20;
@@ -1961,26 +2477,41 @@
     const ET = interpolate(m.ET, T);
 
     let sigmaZul;
+    let sigmaZulText;
     if (m.group === 'carbon') {
       sigmaZul = Math.min(ReT * 2/3, m.Rm * 5/12);
+      sigmaZulText = `σ_zul = min( ${ReT.toFixed(1)} · 2/3 ; ${m.Rm} · 5/12 ) = min(${(ReT*2/3).toFixed(1)} ; ${(m.Rm*5/12).toFixed(1)}) = ${sigmaZul.toFixed(1)} MPa`;
     } else if (m.group === 'stainless') {
       sigmaZul = Math.min(ReT * 2/3, RmT * 1/3);
+      sigmaZulText = `σ_zul = min( ${ReT.toFixed(1)} · 2/3 ; ${RmT.toFixed(1)} · 1/3 ) = min(${(ReT*2/3).toFixed(1)} ; ${(RmT*1/3).toFixed(1)}) = ${sigmaZul.toFixed(1)} MPa`;
     } else {
       sigmaZul = Math.min(ReT * 2/3, m.Rm * 5/12);
+      sigmaZulText = `σ_zul = min( ${ReT.toFixed(1)} · 2/3 ; ${m.Rm} · 5/12 ) = min(${(ReT*2/3).toFixed(1)} ; ${(m.Rm*5/12).toFixed(1)}) = ${sigmaZul.toFixed(1)} MPa`;
     }
 
-    document.getElementById('matT').textContent = T;
-    document.getElementById('outRe').textContent = ReT.toFixed(1) + ' MPa';
-    document.getElementById('outRmT').textContent = RmT.toFixed(1) + ' MPa';
-    document.getElementById('outET').textContent = ET.toFixed(1) + ' GPa';
-    document.getElementById('outAlpha').textContent = m.alpha.toFixed(1) + '·10⁻⁶/K';
-    document.getElementById('outSigmaZul').textContent = sigmaZul.toFixed(1) + ' MPa';
+    setText('matT', T);
+    setText('outRe', ReT.toFixed(1) + ' MPa');
+    setText('outRmT', RmT.toFixed(1) + ' MPa');
+    setText('outET', ET.toFixed(1) + ' GPa');
+    setText('outAlpha', m.alpha.toFixed(1) + '·10⁻⁶/K');
+    setText('outSigmaZul', sigmaZul.toFixed(1) + ' MPa');
 
     // Thermische Parameter synchronisieren
     const inputETherm = document.getElementById('inputETherm');
     const inputAlphaTherm = document.getElementById('inputAlphaTherm');
     if (inputETherm) inputETherm.value = ET.toFixed(1);
     if (inputAlphaTherm) inputAlphaTherm.value = m.alpha.toFixed(1);
+
+    // Formel-Block Schritt 4.1
+    const [k1, k2] = findBracketKeys(m.ReT, T);
+    if (k1 === k2) {
+      setText('f4-subst-interp', `Re(${T}°C) = ${m.ReT[k1]} MPa (Stützstelle, keine Interpolation nötig)`);
+    } else {
+      const v1 = m.ReT[k1], v2 = m.ReT[k2];
+      const f = (T - k1) / (k2 - k1);
+      setText('f4-subst-interp', `Re(${T}°C) = ${v1} + (${v2}−${v1})·(${T}−${k1})/(${k2}−${k1}) = ${ReT.toFixed(1)} MPa`);
+    }
+    setText('f4-subst-sigmac', sigmaZulText);
 
     calcResults.sigmaZul = sigmaZul;
     calcResults.ET = ET;
@@ -2014,11 +2545,11 @@
 
     const weldFactor = parseFloat(document.getElementById('weldFactor').value) || 0.85;
 
-    document.getElementById('outCorrRate').textContent = corrRate.toFixed(2) + ' mm/Jahr';
-    document.getElementById('outLife').textContent = life + ' Jahre';
-    document.getElementById('outC1Detail').textContent = c1.toFixed(2) + ' mm';
-    document.getElementById('outC2').textContent = c2.toFixed(2) + ' mm';
-    document.getElementById('outC').textContent = c.toFixed(2) + ' mm';
+    setText('outCorrRate', corrRate.toFixed(2) + ' mm/Jahr');
+    setText('outLife', life + ' Jahre');
+    setText('outC1Detail', c1.toFixed(2) + ' mm');
+    setText('outC2', c2.toFixed(2) + ' mm');
+    setText('outC', c.toFixed(2) + ' mm');
 
     const corrCat = parseInt(document.getElementById('corrosionCategory').value);
     let corrRec = '';
@@ -2026,57 +2557,81 @@
     else if (corrCat === 1) corrRec = 'Geringe Korrosion – 0,1 mm/Jahr üblich';
     else if (corrCat === 2) corrRec = 'Mittlere Korrosion – regelmäßige Inspektion';
     else corrRec = 'Starke Korrosion – Sonderwerkstoff prüfen';
-    document.getElementById('outCorrRec').textContent = corrRec;
+    setText('outCorrRec', corrRec);
 
     const s0 = (Pc * Da) / (20 * sigmaZul * weldFactor + Pc);
     const sMin = s0 + c;
     const sGew = Math.ceil(sMin * 2) / 2;
 
-    document.getElementById('outS0').textContent = s0.toFixed(2) + ' mm';
-    document.getElementById('outSmin').textContent = sMin.toFixed(2) + ' mm';
-    document.getElementById('outSgew').textContent = sGew.toFixed(2) + ' mm';
+    setText('outS0', s0.toFixed(2) + ' mm');
+    setText('outSmin', sMin.toFixed(2) + ' mm');
+    setText('outSgew', sGew.toFixed(2) + ' mm');
 
     const reserve = ((sGew - sMin) / sMin * 100);
-    document.getElementById('outReserve').textContent = reserve.toFixed(1) + ' %';
-    document.getElementById('outReserve').className = reserve >= 0 ? 'value ok' : 'value fail';
+    setText('outReserve', reserve.toFixed(1) + ' %');
+    const resEl = document.getElementById('outReserve');
+    if (resEl) resEl.className = reserve >= 0 ? 'value ok' : 'value fail';
 
     const barRes = document.getElementById('barReserve');
-    barRes.style.width = Math.min(Math.max(reserve, 0), 100) + '%';
-    barRes.style.background = reserve >= 0 ? 'var(--accent)' : 'var(--danger)';
+    if (barRes) {
+      barRes.style.width = Math.min(Math.max(reserve, 0), 100) + '%';
+      barRes.style.background = reserve >= 0 ? 'var(--accent)' : 'var(--danger)';
+    }
 
     const sigmaM = (Pc * (Da - sGew)) / (20 * sGew);
     const utilization = (sigmaM / sigmaZul) * 100;
 
-    document.getElementById('outSigmaM').textContent = sigmaM.toFixed(1) + ' MPa';
-    document.getElementById('outSigmaAllow').textContent = sigmaZul.toFixed(1) + ' MPa';
-    document.getElementById('outUtilization').textContent = utilization.toFixed(1) + ' %';
+    setText('outSigmaM', sigmaM.toFixed(1) + ' MPa');
+    setText('outSigmaAllow', sigmaZul.toFixed(1) + ' MPa');
+    setText('outUtilization', utilization.toFixed(1) + ' %');
 
     const barU = document.getElementById('barUtilization');
-    barU.style.width = Math.min(utilization, 100) + '%';
-    barU.style.background = utilization <= 100 ? 'var(--accent)' : 'var(--danger)';
+    if (barU) {
+      barU.style.width = Math.min(utilization, 100) + '%';
+      barU.style.background = utilization <= 100 ? 'var(--accent)' : 'var(--danger)';
+    }
 
     const stressResult = document.getElementById('outStressResult');
-    if (utilization <= 100) {
-      stressResult.textContent = '✅ Nachweis erbracht';
-      stressResult.className = 'value ok';
-    } else {
-      stressResult.textContent = '❌ Nachweis nicht erbracht';
-      stressResult.className = 'value fail';
+    if (stressResult) {
+      if (utilization <= 100) {
+        stressResult.textContent = '✅ Nachweis erbracht';
+        stressResult.className = 'value ok';
+      } else {
+        stressResult.textContent = '❌ Nachweis nicht erbracht';
+        stressResult.className = 'value fail';
+      }
     }
 
     const PT = Math.max(1.25 * Pc, 1.43 * Pc);
-    document.getElementById('outPT').textContent = PT.toFixed(1) + ' bar';
+    setText('outPT', PT.toFixed(1) + ' bar');
 
     const sigTheta = (Pc * (Da - sGew)) / (20 * sGew);
     const sigZ = (Pc * (Da - sGew)) / (40 * sGew);
     const sigV = Math.sqrt(sigTheta * sigTheta + sigZ * sigZ - sigTheta * sigZ);
 
-    document.getElementById('outSigTheta').textContent = sigTheta.toFixed(1) + ' MPa';
-    document.getElementById('outSigZ').textContent = sigZ.toFixed(1) + ' MPa';
-    document.getElementById('outSigV').textContent = sigV.toFixed(1) + ' MPa';
-    document.getElementById('outSigmaZul2').textContent = sigmaZul.toFixed(1) + ' MPa';
+    setText('outSigTheta', sigTheta.toFixed(1) + ' MPa');
+    setText('outSigZ', sigZ.toFixed(1) + ' MPa');
+    setText('outSigV', sigV.toFixed(1) + ' MPa');
+    setText('outSigmaZul2', sigmaZul.toFixed(1) + ' MPa');
 
-    calcResults.wallThickness = { s0, sMin, sGew, sigmaM, sigmaZul, utilization, c1, c2, c, PT };
+    // Formel-Block 4.2
+    setText('f4-subst-c1', `c₁ = ${corrRate.toFixed(2)} mm/Jahr · ${life} Jahre = ${c1.toFixed(2)} mm`);
+    setText('f4-subst-c2', `c₂ = ${c2.toFixed(2)} mm`);
+    setText('f4-subst-c', `c = ${c1.toFixed(2)} + ${c2.toFixed(2)} = ${c.toFixed(2)} mm`);
+
+    // Formel-Block 4.3
+    setText('f4-subst-s0', `s₀ = (${Pc} · ${Da}) / (20 · ${sigmaZul.toFixed(1)} · ${weldFactor} + ${Pc}) = ${(Pc*Da).toFixed(0)} / ${(20*sigmaZul*weldFactor+Pc).toFixed(1)} = ${s0.toFixed(2)} mm`);
+    setText('f4-subst-smin', `s_min = ${s0.toFixed(2)} + ${c.toFixed(2)} = ${sMin.toFixed(2)} mm`);
+    setText('f4-subst-sgew', `s_gew = ceil(${sMin.toFixed(2)} · 2) / 2 = ${Math.ceil(sMin*2)}/2 = ${sGew.toFixed(2)} mm`);
+    setText('f4-subst-res', `Reserve = (${sGew.toFixed(2)} − ${sMin.toFixed(2)}) / ${sMin.toFixed(2)} · 100 % = ${reserve.toFixed(1)} %`);
+    setText('f4-subst-sm', `σ_m = (${Pc} · (${Da} − ${sGew.toFixed(2)})) / (20 · ${sGew.toFixed(2)}) = ${(Pc*(Da-sGew)).toFixed(1)} / ${(20*sGew).toFixed(1)} = ${sigmaM.toFixed(1)} MPa`);
+    setText('f4-subst-util', `Auslastung = ${sigmaM.toFixed(1)} / ${sigmaZul.toFixed(1)} · 100 % = ${utilization.toFixed(1)} % → ${utilization <= 100 ? '✅ Nachweis erbracht' : '❌ Nachweis nicht erbracht'}`);
+    setText('f4-subst-stheta', `σ_θ = ${sigTheta.toFixed(1)} MPa`);
+    setText('f4-subst-sz', `σ_z = ${sigTheta.toFixed(1)} / 2 = ${sigZ.toFixed(1)} MPa`);
+    setText('f4-subst-sv', `σ_v = √(${sigTheta.toFixed(1)}² + ${sigZ.toFixed(1)}² − ${sigTheta.toFixed(1)}·${sigZ.toFixed(1)}) = ${sigV.toFixed(1)} MPa`);
+    setText('f4-subst-pt', `PT = max(1,25 · ${Pc} ; 1,43 · ${Pc}) = max(${(1.25*Pc).toFixed(1)} ; ${(1.43*Pc).toFixed(1)}) = ${PT.toFixed(1)} bar`);
+
+    calcResults.wallThickness = { s0, sMin, sGew, sigmaM, sigmaZul, utilization, c1, c2, c, PT, sigTheta, sigZ, sigV };
 
     // Thermische und Mohr-Berechnungen aktualisieren
     updateThermalAndMohr();
@@ -2092,18 +2647,40 @@
     const elonOk = A >= 14;
     const impactOk = KV >= 27;
 
-    document.getElementById('outElongResult').textContent = elonOk ? '✅ ≥ 14 %' : '❌ < 14 %';
-    document.getElementById('outElongResult').className = 'value ' + (elonOk ? 'ok' : 'fail');
-    document.getElementById('outImpactResult').textContent = impactOk ? '✅ ≥ 27 J' : '❌ < 27 J';
-    document.getElementById('outImpactResult').className = 'value ' + (impactOk ? 'ok' : 'fail');
+    const eEl = document.getElementById('outElongResult');
+    if (eEl) {
+      eEl.textContent = elonOk ? '✅ ≥ 14 %' : '❌ < 14 %';
+      eEl.className = 'value ' + (elonOk ? 'ok' : 'fail');
+    }
+    const iEl = document.getElementById('outImpactResult');
+    if (iEl) {
+      iEl.textContent = impactOk ? '✅ ≥ 27 J' : '❌ < 27 J';
+      iEl.className = 'value ' + (impactOk ? 'ok' : 'fail');
+    }
 
     const result = document.getElementById('outDuctilityResult');
-    if (elonOk && impactOk) {
-      result.textContent = '✅ Duktil – Anh. I Nr. 7.5 erfüllt';
-      result.className = 'value ok';
-    } else {
-      result.textContent = '❌ Nicht ausreichend duktil';
-      result.className = 'value fail';
+    if (result) {
+      if (elonOk && impactOk) {
+        result.textContent = '✅ Duktil – Anh. I Nr. 7.5 erfüllt';
+        result.className = 'value ok';
+      } else {
+        result.textContent = '❌ Nicht ausreichend duktil';
+        result.className = 'value fail';
+      }
+    }
+
+    // Formel-Block 4.5
+    setText('f4d-subst-a', `A = ${A} % ${elonOk ? '≥' : '<'} 14 % → ${elonOk ? '✅' : '❌'}`);
+    setText('f4d-subst-kv', `KV = ${KV} J ${impactOk ? '≥' : '<'} 27 J → ${impactOk ? '✅' : '❌'}`);
+    const tot = document.getElementById('f4d-subst-total');
+    if (tot) {
+      if (elonOk && impactOk) {
+        tot.textContent = '→ Duktil – Anh. I Nr. 7.5 erfüllt';
+        tot.style.color = '#1e7e34';
+      } else {
+        tot.textContent = '→ Nicht ausreichend duktil';
+        tot.style.color = '#c0392b';
+      }
     }
   }
 
@@ -2141,27 +2718,42 @@
       sigmaThAx * sigmaThTan - sigmaThTan * sigmaThRad - sigmaThRad * sigmaThAx
     );
     
-    document.getElementById('outDeltaT').textContent = deltaT.toFixed(1) + ' K';
-    document.getElementById('outEpsTh').textContent = (epsTh * 100).toFixed(4) + ' %';
-    document.getElementById('outEpsAxial').textContent = (epsAxial * 100).toFixed(4) + ' %';
-    document.getElementById('outEpsRadial').textContent = (epsRadial * 100).toFixed(4) + ' %';
-    document.getElementById('outDeltaL').textContent = deltaL.toFixed(2) + ' mm';
-    document.getElementById('outDeltaDa').textContent = deltaDa.toFixed(2) + ' mm';
-    document.getElementById('outDeltaS').textContent = deltaS.toFixed(3) + ' mm';
-    document.getElementById('outSigmaTh').textContent = sigmaTh.toFixed(1) + ' MPa';
-    document.getElementById('outSigmaThAx').textContent = sigmaThAx.toFixed(1) + ' MPa';
-    document.getElementById('outSigmaThRad').textContent = sigmaThRad.toFixed(1) + ' MPa';
-    document.getElementById('outSigmaThV').textContent = sigmaThV.toFixed(1) + ' MPa';
+    setText('outDeltaT', deltaT.toFixed(1) + ' K');
+    setText('outEpsTh', (epsTh * 100).toFixed(4) + ' %');
+    setText('outEpsAxial', (epsAxial * 100).toFixed(4) + ' %');
+    setText('outEpsRadial', (epsRadial * 100).toFixed(4) + ' %');
+    setText('outDeltaL', deltaL.toFixed(2) + ' mm');
+    setText('outDeltaDa', deltaDa.toFixed(2) + ' mm');
+    setText('outDeltaS', deltaS.toFixed(3) + ' mm');
+    setText('outSigmaTh', sigmaTh.toFixed(1) + ' MPa');
+    setText('outSigmaThAx', sigmaThAx.toFixed(1) + ' MPa');
+    setText('outSigmaThRad', sigmaThRad.toFixed(1) + ' MPa');
+    setText('outSigmaThV', sigmaThV.toFixed(1) + ' MPa');
     
     const sigmaZul = calcResults.sigmaZul || 150;
     const thermResult = document.getElementById('outThermResult');
-    if (sigmaThV <= sigmaZul) {
-      thermResult.textContent = '✅ Thermische Spannungen zulässig';
-      thermResult.className = 'value ok';
-    } else {
-      thermResult.textContent = '⚠️ Thermische Spannungen erhöht – prüfen!';
-      thermResult.className = 'value warn';
+    if (thermResult) {
+      if (sigmaThV <= sigmaZul) {
+        thermResult.textContent = '✅ Thermische Spannungen zulässig';
+        thermResult.className = 'value ok';
+      } else {
+        thermResult.textContent = '⚠️ Thermische Spannungen erhöht – prüfen!';
+        thermResult.className = 'value warn';
+      }
     }
+
+    // Formel-Block 4.4b
+    setText('f4b-subst-dt', `ΔT = ${T1} − ${T0} = ${deltaT.toFixed(1)} K`);
+    setText('f4b-subst-eps', `ε_th = ${alpha.toFixed(1)}·10⁻⁶ /K · ${deltaT.toFixed(1)} K = ${epsTh.toExponential(3)} = ${(epsTh*100).toFixed(4)} %`);
+    setText('f4b-subst-epsax', `ε_axial = ${(epsAxial*100).toFixed(4)} %`);
+    setText('f4b-subst-epsrad', `ε_radial = ${(epsRadial*100).toFixed(4)} %`);
+    setText('f4b-subst-dl', `ΔL = ${epsAxial.toExponential(3)} · ${L} mm = ${deltaL.toFixed(2)} mm`);
+    setText('f4b-subst-dda', `ΔDa = ${epsRadial.toExponential(3)} · ${Da} mm = ${deltaDa.toFixed(2)} mm`);
+    setText('f4b-subst-ds', `Δs = ${epsRadial.toExponential(3)} · ${s.toFixed(2)} mm = ${deltaS.toFixed(3)} mm`);
+    setText('f4b-subst-sth', `σ_th = ${E}·10³ MPa · ${epsTh.toExponential(3)} = ${sigmaTh.toFixed(1)} MPa`);
+    setText('f4b-subst-sthax', `σ_th,ax = ${E*1000} · ${alpha}·10⁻⁶ · ${deltaT.toFixed(1)} / (1 − ${nu}) = ${sigmaThAx.toFixed(1)} MPa`);
+    setText('f4b-subst-sthrad', `σ_th,rad = ${sigmaThRad.toFixed(1)} MPa`);
+    setText('f4b-subst-sthv', `σ_th,V = √(${sigmaThAx.toFixed(1)}² + ${sigmaThTan.toFixed(1)}² + ${sigmaThRad.toFixed(1)}² − ${sigmaThAx.toFixed(1)}·${sigmaThTan.toFixed(1)} − ${sigmaThTan.toFixed(1)}·${sigmaThRad.toFixed(1)} − ${sigmaThRad.toFixed(1)}·${sigmaThAx.toFixed(1)}) = ${sigmaThV.toFixed(1)} MPa`);
     
     calcResults.thermal = {
       deltaT, epsTh, epsAxial, epsRadial, deltaL, deltaDa, deltaS,
@@ -2227,29 +2819,45 @@
     const sigmaZul = calcResults.sigmaZul || 150;
     const utilization = (sigmaVMises / sigmaZul) * 100;
     
-    document.getElementById('outSigma1').textContent = s1.toFixed(1) + ' MPa';
-    document.getElementById('outSigma2').textContent = s2.toFixed(1) + ' MPa';
-    document.getElementById('outSigma3').textContent = s3.toFixed(1) + ' MPa';
-    document.getElementById('outTauMax').textContent = tauMax.toFixed(1) + ' MPa';
-    document.getElementById('outSigmaVMises').textContent = sigmaVMises.toFixed(1) + ' MPa';
-    document.getElementById('outSigmaVTresca').textContent = sigmaVTresca.toFixed(1) + ' MPa';
-    document.getElementById('outMohrUtil').textContent = utilization.toFixed(1) + ' %';
+    setText('outSigma1', s1.toFixed(1) + ' MPa');
+    setText('outSigma2', s2.toFixed(1) + ' MPa');
+    setText('outSigma3', s3.toFixed(1) + ' MPa');
+    setText('outTauMax', tauMax.toFixed(1) + ' MPa');
+    setText('outSigmaVMises', sigmaVMises.toFixed(1) + ' MPa');
+    setText('outSigmaVTresca', sigmaVTresca.toFixed(1) + ' MPa');
+    setText('outMohrUtil', utilization.toFixed(1) + ' %');
     
-    document.getElementById('outSigX').textContent = sigmaX.toFixed(1) + ' MPa';
-    document.getElementById('outSigY').textContent = sigmaY.toFixed(1) + ' MPa';
-    document.getElementById('outSigZ2').textContent = sigmaZ.toFixed(1) + ' MPa';
-    document.getElementById('outTauXY').textContent = tauXY.toFixed(1) + ' MPa';
-    document.getElementById('outSigM2').textContent = sigmaM.toFixed(1) + ' MPa';
-    document.getElementById('outSigB').textContent = '0.0 MPa';
+    setText('outSigX', sigmaX.toFixed(1) + ' MPa');
+    setText('outSigY', sigmaY.toFixed(1) + ' MPa');
+    setText('outSigZ2', sigmaZ.toFixed(1) + ' MPa');
+    setText('outTauXY', tauXY.toFixed(1) + ' MPa');
+    setText('outSigM2', sigmaM.toFixed(1) + ' MPa');
+    setText('outSigB', '0.0 MPa');
     
     const mohrResult = document.getElementById('outMohrResult');
-    if (utilization <= 100) {
-      mohrResult.textContent = '✅ Nachweis erbracht';
-      mohrResult.className = 'value ok';
-    } else {
-      mohrResult.textContent = '❌ Nachweis nicht erbracht';
-      mohrResult.className = 'value fail';
+    if (mohrResult) {
+      if (utilization <= 100) {
+        mohrResult.textContent = '✅ Nachweis erbracht';
+        mohrResult.className = 'value ok';
+      } else {
+        mohrResult.textContent = '❌ Nachweis nicht erbracht';
+        mohrResult.className = 'value fail';
+      }
     }
+
+    // Formel-Block 4.4c
+    setText('f4c-subst-stheta', `σ_θ = (${Pc}·0,1 MPa · ${Di.toFixed(1)} mm) / (2 · ${s.toFixed(2)} mm) = ${sigmaTheta.toFixed(1)} MPa`);
+    setText('f4c-subst-sax', `σ_ax = (${Pc}·0,1 MPa · ${Di.toFixed(1)} mm) / (4 · ${s.toFixed(2)} mm) = ${sigmaAxial.toFixed(1)} MPa`);
+    setText('f4c-subst-srad', `σ_rad = −${Pc} · 0,1 = ${sigmaRadial.toFixed(1)} MPa`);
+    setText('f4c-subst-total', `σ_x = ${sigmaAxial.toFixed(1)} + ${(thermal.sigmaThAx||0).toFixed(1)} = ${sigmaX.toFixed(1)} MPa ; σ_y = ${sigmaTheta.toFixed(1)} + ${(thermal.sigmaThTan||0).toFixed(1)} = ${sigmaY.toFixed(1)} MPa ; σ_z = ${sigmaRadial.toFixed(1)} + ${(thermal.sigmaThRad||0).toFixed(1)} = ${sigmaZ.toFixed(1)} MPa`);
+    setText('f4c-subst-sm', `σ_m = (${sigmaX.toFixed(1)} + ${sigmaY.toFixed(1)}) / 2 = ${sigmaM.toFixed(1)} MPa`);
+    setText('f4c-subst-r', `R = √( ((${sigmaX.toFixed(1)} − ${sigmaY.toFixed(1)})/2)² + ${tauXY.toFixed(1)}² ) = ${radius.toFixed(1)} MPa`);
+    setText('f4c-subst-haupt', `σ₁ = ${sigmaM.toFixed(1)} + ${radius.toFixed(1)} = ${(sigmaM+radius).toFixed(1)} MPa ; σ₂ = ${sigmaM.toFixed(1)} − ${radius.toFixed(1)} = ${(sigmaM-radius).toFixed(1)} MPa ; σ₃ = ${sigmaZ.toFixed(1)} MPa`);
+    setText('f4c-subst-sort', `σ₁ = ${s1.toFixed(1)} MPa ; σ₂ = ${s2.toFixed(1)} MPa ; σ₃ = ${s3.toFixed(1)} MPa`);
+    setText('f4c-subst-taumax', `τ_max = (${s1.toFixed(1)} − ${s3.toFixed(1)}) / 2 = ${tauMax.toFixed(1)} MPa`);
+    setText('f4c-subst-vm', `σ_vM = √( ½ · [(${s1.toFixed(1)}−${s2.toFixed(1)})² + (${s2.toFixed(1)}−${s3.toFixed(1)})² + (${s3.toFixed(1)}−${s1.toFixed(1)})²] ) = ${sigmaVMises.toFixed(1)} MPa`);
+    setText('f4c-subst-vt', `σ_vT = ${s1.toFixed(1)} − ${s3.toFixed(1)} = ${sigmaVTresca.toFixed(1)} MPa`);
+    setText('f4c-subst-util', `Auslastung = ${sigmaVMises.toFixed(1)} / ${sigmaZul.toFixed(1)} · 100 % = ${utilization.toFixed(1)} % → ${utilization <= 100 ? '✅ Nachweis erbracht' : '❌ Nachweis nicht erbracht'}`);
     
     drawMohrCircle(s1, s2, s3, sigmaM, radius);
     
@@ -2371,6 +2979,7 @@
   // ============================================================
   function renderMaterialTable(filter) {
     const tbody = document.getElementById('materialTableBody');
+    if (!tbody) return;
     let html = '';
     for (let key in materials) {
       const m = materials[key];
@@ -2540,8 +3149,11 @@
 
     selectedModule = select.value;
 
-    document.getElementById('procedureOutput').innerHTML =
-      `Kategorie <strong>${cat}</strong> → Empfohlene Module: <strong>${allowed.join(', ')}</strong>`;
+    const out = document.getElementById('procedureOutput');
+    if (out) out.innerHTML = `Kategorie <strong>${cat}</strong> → Empfohlene Module: <strong>${allowed.join(', ')}</strong>`;
+
+    setText('f6-subst-rule', `Kategorie ${cat} → ${allowed.join(', ')}`);
+    setText('f6-subst-cat', `Kategorie ${cat} → gewählt: ${selectedModule}`);
   }
 
   function renderModuleChecklist() {
@@ -2591,7 +3203,7 @@
     const checked = Array.from(allCheckboxes).filter(cb => cb.checked).length;
     const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
 
-    document.getElementById('resultPercent').textContent = percent + '%';
+    setText('resultPercent', percent + '%');
 
     let message = '';
     if (percent === 100) message = '🎉 Vollständige Konformität! Alle Prüfpunkte erfüllt.';
@@ -2599,7 +3211,7 @@
     else if (percent >= 50) message = '⚠️ Teilweise Konformität. Erhebliche Lücken.';
     else message = '🔴 Geringe Konformität. Dringender Handlungsbedarf.';
 
-    document.getElementById('resultMessage').textContent = message;
+    setText('resultMessage', message);
 
     const summary = document.getElementById('resultSummary');
     let html = '';
@@ -2635,15 +3247,17 @@
       html += `<li style="color:#1e7e34;">Alle Anforderungen erfüllt – EU-Konformitätserklärung kann ausgestellt werden.</li>`;
     }
 
-    summary.innerHTML = html;
+    if (summary) summary.innerHTML = html;
 
     const hint = document.getElementById('finalHint');
-    if (percent === 100) {
-      hint.innerHTML = '<strong>✅ Nächste Schritte:</strong> EU-Konformitätserklärung nach Anhang IV ausstellen, CE-Kennzeichnung anbringen, Dokumentation für Marktüberwachung bereithalten.';
-      hint.className = 'info-box success';
-    } else {
-      hint.innerHTML = '<strong>⚠️ Nächste Schritte:</strong> Offene Punkte bearbeiten, ggf. notifizierte Stelle einbinden.';
-      hint.className = 'info-box warning';
+    if (hint) {
+      if (percent === 100) {
+        hint.innerHTML = '<strong>✅ Nächste Schritte:</strong> EU-Konformitätserklärung nach Anhang IV ausstellen, CE-Kennzeichnung anbringen, Dokumentation für Marktüberwachung bereithalten.';
+        hint.className = 'info-box success';
+      } else {
+        hint.innerHTML = '<strong>⚠️ Nächste Schritte:</strong> Offene Punkte bearbeiten, ggf. notifizierte Stelle einbinden.';
+        hint.className = 'info-box warning';
+      }
     }
   }
 
@@ -2697,11 +3311,13 @@
   calculateWallThickness();
   calculateDuctility();
   renderModuleChecklist();
+  updateApplicabilityFormulas();
 
   // Event-Listener
   document.getElementById('moduleSelect').addEventListener('change', function() {
     selectedModule = this.value;
     renderModuleChecklist();
+    setText('f6-subst-cat', `Kategorie ${classification ? classification.category : '-'} → gewählt: ${selectedModule}`);
   });
 
   document.getElementById('materialSelect').addEventListener('change', function() {
@@ -2769,8 +3385,13 @@
     el.addEventListener('input', () => { if (currentStep === 2) calculateClassification(); });
   });
 
+  // Live-Anwendbarkeit
+  document.getElementById('inputPS').addEventListener('input', updateApplicabilityFormulas);
+  document.querySelectorAll('input[name="exclusion"]').forEach(el => el.addEventListener('change', updateApplicabilityFormulas));
+
   calculateClassification();
   updateDiagram();
+  updateApplicabilityFormulas();
 
   // Initiale thermische und Mohr-Berechnungen
   setTimeout(() => {
