@@ -432,7 +432,7 @@
     padding: 1rem;
     margin: 1rem 0;
     position: relative;
-    box-shadow: 0 4px 16px rgba(11,59,92,0.08);
+    box-shadow: 0 4px 16px rgba(11, 59, 92, 0.08);
   }
 
   .sketch-container::before {
@@ -525,6 +525,72 @@
     transition: width 0.4s;
   }
 
+  /* Mohrscher Spannungskreis */
+  .mohr-container {
+    background: #fdfdfd;
+    border: 2px solid var(--primary-light);
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1rem 0;
+    position: relative;
+    box-shadow: 0 4px 16px rgba(11, 59, 92, 0.08);
+  }
+
+  .mohr-container::before {
+    content: 'MOHRSCHER SPANNUNGSKREIS – 3D SPANNUNGSZUSTAND';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    background: var(--primary);
+    color: white;
+    padding: 0.15rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .thermal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 0.9rem;
+    margin: 0.9rem 0;
+  }
+
+  .thermal-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+  }
+
+  .thermal-card h4 {
+    margin-top: 0;
+    color: var(--primary);
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.7rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .thermal-card .calc-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+    border-bottom: 1px dashed #e2e8f0;
+    font-size: 0.82rem;
+  }
+
+  .thermal-card .calc-row:last-child { border-bottom: none; }
+  .thermal-card .calc-row .label { color: var(--text-light); }
+  .thermal-card .calc-row .value { font-weight: 600; color: var(--primary); font-family: var(--mono); font-size: 0.8rem; }
+  .thermal-card .calc-row .value.ok { color: var(--accent); }
+  .thermal-card .calc-row .value.warn { color: var(--warning); }
+  .thermal-card .calc-row .value.fail { color: var(--danger); }
+
   @media (max-width: 768px) {
     .app-header { padding: 1rem 1.2rem; }
     .app-header h1 { font-size: 1.05rem; }
@@ -534,6 +600,7 @@
     .btn { width: 100%; justify-content: center; }
     .btn-row { flex-direction: column; }
     .calc-grid { grid-template-columns: 1fr; }
+    .thermal-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -541,7 +608,7 @@
 <div class="app">
   <div class="app-header">
     <h1>⚙️ DGRL 2014/68/EU – Professioneller Auslegungsassistent</h1>
-    <div class="subtitle">Behälter-Skizze · Festigkeitsberechnung · Werkstoffe · Korrosion · Konformität</div>
+    <div class="subtitle">Behälter-Skizze · Festigkeitsberechnung · Werkstoffe · Korrosion · Thermische Dehnung · Mohrscher Spannungskreis · Konformität</div>
   </div>
 
   <div class="steps-bar" id="stepsBar">
@@ -852,6 +919,86 @@
       <h3>4.4 Temperaturabhängige Werkstoffkennwerte</h3>
       <div class="diagram-container" id="emodulDiagram"></div>
 
+      <h3>4.4b Thermische Dehnung (Anh. I Nr. 2.2 & 7.1)</h3>
+      <div class="info-box info">
+        <strong>Hinweis:</strong> Die thermische Dehnung wird für die axiale und radiale Richtung berechnet. 
+        Die behinderte Wärmedehnung erzeugt zusätzliche Spannungen, die bei der Auslegung berücksichtigt werden müssen.
+      </div>
+
+      <div class="thermal-grid">
+        <div class="thermal-card">
+          <h4>🌡️ Temperaturparameter</h4>
+          <div class="form-group">
+            <label class="field-label">Einbautemperatur T₀ (°C)</label>
+            <input type="number" id="inputT0" value="20" step="1">
+          </div>
+          <div class="form-group">
+            <label class="field-label">Betriebstemperatur T₁ (°C)</label>
+            <input type="number" id="inputT1" value="120" step="1">
+          </div>
+          <div class="form-group">
+            <label class="field-label">Wärmeausdehnungskoeffizient α (10⁻⁶/K)</label>
+            <input type="number" id="inputAlphaTherm" value="12.0" min="0" step="0.1">
+          </div>
+          <div class="form-group">
+            <label class="field-label">E-Modul bei T₁ (GPa)</label>
+            <input type="number" id="inputETherm" value="198" min="0" step="1">
+          </div>
+          <div class="form-group">
+            <label class="field-label">Querkontraktionszahl ν</label>
+            <input type="number" id="inputNu" value="0.3" min="0" max="0.5" step="0.01">
+          </div>
+        </div>
+
+        <div class="thermal-card">
+          <h4>📏 Thermische Dehnung</h4>
+          <div class="calc-row"><span class="label">Temperaturdifferenz ΔT</span><span class="value" id="outDeltaT">–</span></div>
+          <div class="calc-row"><span class="label">Thermische Dehnung ε_th</span><span class="value" id="outEpsTh">–</span></div>
+          <div class="calc-row"><span class="label">Axiale Dehnung ε_axial</span><span class="value" id="outEpsAxial">–</span></div>
+          <div class="calc-row"><span class="label">Radiale Dehnung ε_radial</span><span class="value" id="outEpsRadial">–</span></div>
+          <div class="calc-row"><span class="label">Längenänderung ΔL</span><span class="value" id="outDeltaL">–</span></div>
+          <div class="calc-row"><span class="label">Durchmesseränderung ΔDa</span><span class="value" id="outDeltaDa">–</span></div>
+          <div class="calc-row"><span class="label">Wanddickenänderung Δs</span><span class="value" id="outDeltaS">–</span></div>
+        </div>
+
+        <div class="thermal-card">
+          <h4>⚡ Thermische Spannungen (behindert)</h4>
+          <div class="calc-row"><span class="label">Thermische Spannung σ_th</span><span class="value" id="outSigmaTh">–</span></div>
+          <div class="calc-row"><span class="label">Axiale therm. Spannung σ_th,ax</span><span class="value" id="outSigmaThAx">–</span></div>
+          <div class="calc-row"><span class="label">Radiale therm. Spannung σ_th,rad</span><span class="value" id="outSigmaThRad">–</span></div>
+          <div class="calc-row"><span class="label">Vergleichsspannung (therm.)</span><span class="value" id="outSigmaThV">–</span></div>
+          <div class="calc-row"><span class="label">Bewertung</span><span class="value" id="outThermResult">–</span></div>
+        </div>
+      </div>
+
+      <h3>4.4c Mohrscher Spannungskreis (Anh. I Nr. 7.1.2)</h3>
+      <div class="mohr-container" id="mohrContainer">
+        <!-- Mohr-Kreis wird hier eingefügt -->
+      </div>
+
+      <div class="thermal-grid">
+        <div class="thermal-card">
+          <h4>📊 Hauptspannungen</h4>
+          <div class="calc-row"><span class="label">σ₁ (größte Hauptspannung)</span><span class="value" id="outSigma1">–</span></div>
+          <div class="calc-row"><span class="label">σ₂ (mittlere Hauptspannung)</span><span class="value" id="outSigma2">–</span></div>
+          <div class="calc-row"><span class="label">σ₃ (kleinste Hauptspannung)</span><span class="value" id="outSigma3">–</span></div>
+          <div class="calc-row"><span class="label">Max. Schubspannung τ_max</span><span class="value" id="outTauMax">–</span></div>
+          <div class="calc-row"><span class="label">Vergleichsspannung σ_v (v.Mises)</span><span class="value" id="outSigmaVMises">–</span></div>
+          <div class="calc-row"><span class="label">Vergleichsspannung σ_v (Tresca)</span><span class="value" id="outSigmaVTresca">–</span></div>
+          <div class="calc-row"><span class="label">Auslastung</span><span class="value" id="outMohrUtil">–</span></div>
+          <div class="calc-row"><span class="label">Bewertung</span><span class="value" id="outMohrResult">–</span></div>
+        </div>
+        <div class="thermal-card">
+          <h4>🎯 Spannungskomponenten</h4>
+          <div class="calc-row"><span class="label">σ_x (axial)</span><span class="value" id="outSigX">–</span></div>
+          <div class="calc-row"><span class="label">σ_y (tangential)</span><span class="value" id="outSigY">–</span></div>
+          <div class="calc-row"><span class="label">σ_z (radial)</span><span class="value" id="outSigZ2">–</span></div>
+          <div class="calc-row"><span class="label">τ_xy (Schub)</span><span class="value" id="outTauXY">–</span></div>
+          <div class="calc-row"><span class="label">σ_m (Membranspannung)</span><span class="value" id="outSigM2">–</span></div>
+          <div class="calc-row"><span class="label">σ_b (Biegespannung)</span><span class="value" id="outSigB">–</span></div>
+        </div>
+      </div>
+
       <h3>4.5 Duktilitätsnachweis (Anh. I Nr. 7.5)</h3>
       <div class="calc-grid">
         <div class="calc-card">
@@ -967,6 +1114,9 @@
           </div>
         </div>
       </div>
+
+      <h3>6.1 Modul-Checkliste</h3>
+      <div id="moduleChecklistContainer"></div>
 
       <div class="btn-row">
         <button class="btn btn-secondary" onclick="goToStep(5)">← Zurück</button>
@@ -1278,7 +1428,7 @@
   const stepIndicators = document.querySelectorAll('.step-indicator');
 
   // ============================================================
-  // NAVIGATION (Fehler in Schritt 5 behoben)
+  // NAVIGATION
   // ============================================================
   window.goToStep = function(step) {
     if (step < 1 || step > 8) return;
@@ -1307,6 +1457,7 @@
       calculateMaterialValues();
       calculateWallThickness();
       renderEmodulDiagram('emodulDiagram');
+      updateThermalAndMohr();
     }
 
     if (step === 5) {
@@ -1317,6 +1468,7 @@
 
     if (step === 6) {
       updateModuleSelection();
+      renderModuleChecklist();
     }
 
     if (step === 7) {
@@ -1531,7 +1683,6 @@
 
     const Di = Da - 2 * s;
 
-    // Volumen berechnen (in L)
     let V;
     if (vesselType === 'kugel') {
       V = (Math.PI / 6) * Math.pow(Di / 1000, 3) * 1000;
@@ -1539,7 +1690,6 @@
       V = (Math.PI / 4) * Math.pow(Di / 1000, 2) * (L / 1000) * 1000;
     }
 
-    // Oberfläche (m²)
     let A;
     if (vesselType === 'kugel') {
       A = Math.PI * Math.pow(Da / 1000, 2);
@@ -1547,7 +1697,6 @@
       A = Math.PI * (Da / 1000) * (L / 1000) + 2 * (Math.PI / 4) * Math.pow(Da / 1000, 2);
     }
 
-    // Masse (kg)
     let mass;
     if (vesselType === 'kugel') {
       mass = (Math.PI / 6) * (Math.pow(Da/1000, 3) - Math.pow(Di/1000, 3)) * 7850;
@@ -1556,10 +1705,8 @@
            + 2 * (Math.PI / 6) * (Math.pow(Da/1000, 3) - Math.pow(Di/1000, 3)) * 7850;
     }
 
-    // Prüfdruck nach Anh. I Nr. 7.4
     const PT = Math.max(1.25 * PS, 1.43 * PS) * 1.0;
 
-    // Ausgabe
     document.getElementById('skDa').textContent = Da.toFixed(0) + ' mm';
     document.getElementById('skDi').textContent = Di.toFixed(1) + ' mm';
     document.getElementById('skL').textContent = L.toFixed(0) + ' mm';
@@ -1573,7 +1720,6 @@
     document.getElementById('skPS').textContent = PS.toFixed(1) + ' bar';
     document.getElementById('skPT').textContent = PT.toFixed(1) + ' bar';
 
-    // Skizze zeichnen
     let svg = '';
     if (vesselType === 'kugel') {
       svg = drawSphereSketch(Da, s, Pc, T, PS, DN1, medium);
@@ -1591,7 +1737,6 @@
     const availableW = W - padL - padR;
     const availableH = H - padT - padB;
 
-    // Maßstab berechnen
     const scaleW = availableW / (L + Da);
     const scaleH = availableH / Da;
     const scale = Math.min(scaleW, scaleH) * 0.85;
@@ -1610,7 +1755,6 @@
 
     let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Consolas, monospace">`;
 
-    // Hintergrund-Raster (technisch)
     svg += `<defs>
       <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
         <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#eef2f7" stroke-width="0.5"/>
@@ -1621,33 +1765,25 @@
     </defs>`;
     svg += `<rect x="0" y="0" width="${W}" height="${H}" fill="url(#grid)"/>`;
 
-    // Zylindermantel (Außenkontur)
     svg += `<rect x="${cylLeft}" y="${topY}" width="${lScaled}" height="${daScaled}" fill="#f0f4f8" stroke="#0b3b5c" stroke-width="2"/>`;
-    // Innenkontur
     svg += `<rect x="${cylLeft + sScaled}" y="${topY + sScaled}" width="${lScaled - 2*sScaled}" height="${daScaled - 2*sScaled}" fill="#ffffff" stroke="#1a5a82" stroke-width="1" stroke-dasharray="3,2"/>`;
 
-    // Linke Kappe
     svg += `<path d="M ${cylLeft} ${topY} A ${daScaled/2} ${daScaled/2} 0 0 0 ${cylLeft} ${bottomY} Z" fill="#f0f4f8" stroke="#0b3b5c" stroke-width="2"/>`;
     svg += `<path d="M ${cylLeft + sScaled} ${topY + sScaled} A ${(daScaled-2*sScaled)/2} ${(daScaled-2*sScaled)/2} 0 0 0 ${cylLeft + sScaled} ${bottomY - sScaled} Z" fill="#ffffff" stroke="#1a5a82" stroke-width="1" stroke-dasharray="3,2"/>`;
 
-    // Rechte Kappe
     svg += `<path d="M ${cylRight} ${topY} A ${daScaled/2} ${daScaled/2} 0 0 1 ${cylRight} ${bottomY} Z" fill="#f0f4f8" stroke="#0b3b5c" stroke-width="2"/>`;
     svg += `<path d="M ${cylRight - sScaled} ${topY + sScaled} A ${(daScaled-2*sScaled)/2} ${(daScaled-2*sScaled)/2} 0 0 1 ${cylRight - sScaled} ${bottomY - sScaled} Z" fill="#ffffff" stroke="#1a5a82" stroke-width="1" stroke-dasharray="3,2"/>`;
 
-    // Schweißnähte (Längsnaht)
     svg += `<line x1="${cylLeft}" y1="${topY + sScaled/2}" x2="${cylRight}" y2="${topY + sScaled/2}" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="6,3"/>`;
     svg += `<line x1="${cylLeft}" y1="${bottomY - sScaled/2}" x2="${cylRight}" y2="${bottomY - sScaled/2}" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="6,3"/>`;
 
-    // Stutzen oben
     const noz1W = Math.max(DN1 * scale, 8);
     const noz1X = cylLeft + lScaled * 0.25;
     svg += `<rect x="${noz1X - noz1W/2}" y="${topY - 25}" width="${noz1W}" height="25" fill="#e8eef5" stroke="#0b3b5c" stroke-width="1.5"/>`;
     svg += `<rect x="${noz1X - noz1W/2 + 2}" y="${topY - 23}" width="${noz1W - 4}" height="23" fill="#ffffff" stroke="#1a5a82" stroke-width="0.8"/>`;
     svg += `<line x1="${noz1X - noz1W/2 - 5}" y1="${topY - 25}" x2="${noz1X + noz1W/2 + 5}" y2="${topY - 25}" stroke="#0b3b5c" stroke-width="1.5"/>`;
-    // Flansch
     svg += `<rect x="${noz1X - noz1W/2 - 5}" y="${topY - 32}" width="${noz1W + 10}" height="7" fill="#1a5a82"/>`;
 
-    // Stutzen unten
     const noz2W = Math.max(DN2 * scale, 6);
     const noz2X = cylLeft + lScaled * 0.75;
     svg += `<rect x="${noz2X - noz2W/2}" y="${bottomY}" width="${noz2W}" height="25" fill="#e8eef5" stroke="#0b3b5c" stroke-width="1.5"/>`;
@@ -1655,42 +1791,35 @@
     svg += `<line x1="${noz2X - noz2W/2 - 5}" y1="${bottomY + 25}" x2="${noz2X + noz2W/2 + 5}" y2="${bottomY + 25}" stroke="#0b3b5c" stroke-width="1.5"/>`;
     svg += `<rect x="${noz2X - noz2W/2 - 5}" y="${bottomY + 25}" width="${noz2W + 10}" height="7" fill="#1a5a82"/>`;
 
-    // Füße
     const footW = 20;
     svg += `<rect x="${cylLeft + lScaled * 0.2}" y="${bottomY + 25}" width="${footW}" height="20" fill="#64748b" stroke="#0b3b5c"/>`;
     svg += `<rect x="${cylRight - lScaled * 0.2 - footW}" y="${bottomY + 25}" width="${footW}" height="20" fill="#64748b" stroke="#0b3b5c"/>`;
     svg += `<rect x="${cylLeft + lScaled * 0.2 - 15}" y="${bottomY + 45}" width="${footW + 30}" height="6" fill="#475569"/>`;
     svg += `<rect x="${cylRight - lScaled * 0.2 - footW - 15}" y="${bottomY + 45}" width="${footW + 30}" height="6" fill="#475569"/>`;
 
-    // Bemaßung: Durchmesser Da
     const dimX = cylRight + daScaled/2 + 40;
     svg += `<line x1="${dimX}" y1="${topY}" x2="${dimX}" y2="${bottomY}" stroke="#e74c3c" stroke-width="1"/>`;
     svg += `<line x1="${dimX - 6}" y1="${topY}" x2="${dimX + 6}" y2="${topY}" stroke="#e74c3c" stroke-width="1"/>`;
     svg += `<line x1="${dimX - 6}" y1="${bottomY}" x2="${dimX + 6}" y2="${bottomY}" stroke="#e74c3c" stroke-width="1"/>`;
     svg += `<text x="${dimX + 8}" y="${centerY + 4}" font-size="11" fill="#e74c3c" font-weight="700">Da = ${Da} mm</text>`;
 
-    // Bemaßung: Länge L
     const dimY = bottomY + 70;
     svg += `<line x1="${cylLeft}" y1="${dimY}" x2="${cylRight}" y2="${dimY}" stroke="#e74c3c" stroke-width="1"/>`;
     svg += `<line x1="${cylLeft}" y1="${dimY - 6}" x2="${cylLeft}" y2="${dimY + 6}" stroke="#e74c3c" stroke-width="1"/>`;
     svg += `<line x1="${cylRight}" y1="${dimY - 6}" x2="${cylRight}" y2="${dimY + 6}" stroke="#e74c3c" stroke-width="1"/>`;
     svg += `<text x="${(cylLeft + cylRight)/2}" y="${dimY + 16}" text-anchor="middle" font-size="11" fill="#e74c3c" font-weight="700">L = ${L} mm</text>`;
 
-    // Bemaßung: Wanddicke s
     svg += `<line x1="${cylLeft + lScaled * 0.5}" y1="${topY}" x2="${cylLeft + lScaled * 0.5}" y2="${topY + sScaled}" stroke="#f39c12" stroke-width="1"/>`;
     svg += `<text x="${cylLeft + lScaled * 0.5 + 5}" y="${topY + sScaled/2 + 3}" font-size="10" fill="#f39c12" font-weight="700">s = ${s} mm</text>`;
 
-    // Druckangaben
     svg += `<text x="${W/2}" y="25" text-anchor="middle" font-size="14" font-weight="700" fill="#0b3b5c">DRUCKBEHÄLTER – ZYLINDRISCH (LIEGEND)</text>`;
     svg += `<text x="${W/2}" y="42" text-anchor="middle" font-size="10" fill="#475569">Medium: ${medium} · Pc = ${Pc} bar · T = ${T} °C · PS = ${PS} bar</text>`;
 
-    // Maßstab
     svg += `<line x1="${padL}" y1="${H-20}" x2="${padL + 100}" y2="${H-20}" stroke="#0b3b5c" stroke-width="1.5"/>`;
     svg += `<line x1="${padL}" y1="${H-25}" x2="${padL}" y2="${H-15}" stroke="#0b3b5c" stroke-width="1.5"/>`;
     svg += `<line x1="${padL + 100}" y1="${H-25}" x2="${padL + 100}" y2="${H-15}" stroke="#0b3b5c" stroke-width="1.5"/>`;
     svg += `<text x="${padL + 50}" y="${H-25}" text-anchor="middle" font-size="9" fill="#0b3b5c">ca. ${Math.round(100/scale)} mm</text>`;
 
-    // Werkstoff-Legende
     svg += `<text x="${W - 20}" y="${H-30}" text-anchor="end" font-size="9" fill="#64748b">Zeichnung nicht maßstäblich – Prinzipskizze</text>`;
 
     svg += `</svg>`;
@@ -1724,32 +1853,25 @@
     </defs>`;
     svg += `<rect x="0" y="0" width="${W}" height="${H}" fill="url(#grid2)"/>`;
 
-    // Zylindermantel
     svg += `<rect x="${centerX - daScaled/2}" y="${topY}" width="${daScaled}" height="${lScaled}" fill="#f0f4f8" stroke="#0b3b5c" stroke-width="2"/>`;
     svg += `<rect x="${centerX - daScaled/2 + sScaled}" y="${topY + sScaled}" width="${daScaled - 2*sScaled}" height="${lScaled - 2*sScaled}" fill="#ffffff" stroke="#1a5a82" stroke-width="1" stroke-dasharray="3,2"/>`;
 
-    // Obere Kappe (Ellipse)
     svg += `<ellipse cx="${centerX}" cy="${topY}" rx="${daScaled/2}" ry="${daScaled/6}" fill="#e8eef5" stroke="#0b3b5c" stroke-width="2"/>`;
     svg += `<ellipse cx="${centerX}" cy="${topY}" rx="${daScaled/2 - sScaled}" ry="${daScaled/6 - sScaled/2}" fill="#ffffff" stroke="#1a5a82" stroke-width="0.8" stroke-dasharray="3,2"/>`;
 
-    // Untere Kappe
     svg += `<ellipse cx="${centerX}" cy="${bottomY}" rx="${daScaled/2}" ry="${daScaled/6}" fill="#e8eef5" stroke="#0b3b5c" stroke-width="2"/>`;
 
-    // Stutzen oben
     const noz1W = Math.max(DN1 * scale, 8);
     svg += `<rect x="${centerX - noz1W/2}" y="${topY - daScaled/6 - 25}" width="${noz1W}" height="25" fill="#e8eef5" stroke="#0b3b5c" stroke-width="1.5"/>`;
     svg += `<rect x="${centerX - noz1W/2 - 5}" y="${topY - daScaled/6 - 32}" width="${noz1W + 10}" height="7" fill="#1a5a82"/>`;
 
-    // Stutzen seitlich
     const noz2W = Math.max(DN2 * scale, 6);
     svg += `<rect x="${centerX + daScaled/2}" y="${topY + lScaled * 0.6}" width="25" height="${noz2W}" fill="#e8eef5" stroke="#0b3b5c" stroke-width="1.5"/>`;
     svg += `<rect x="${centerX + daScaled/2 + 25}" y="${topY + lScaled * 0.6 - 5}" width="7" height="${noz2W + 10}" fill="#1a5a82"/>`;
 
-    // Füße
     svg += `<rect x="${centerX - daScaled/2 - 15}" y="${bottomY + daScaled/6}" width="20" height="25" fill="#64748b" stroke="#0b3b5c"/>`;
     svg += `<rect x="${centerX + daScaled/2 - 5}" y="${bottomY + daScaled/6}" width="20" height="25" fill="#64748b" stroke="#0b3b5c"/>`;
 
-    // Bemaßung
     const dimX = centerX + daScaled/2 + 40;
     svg += `<line x1="${dimX}" y1="${topY}" x2="${dimX}" y2="${bottomY}" stroke="#e74c3c" stroke-width="1"/>`;
     svg += `<line x1="${dimX - 6}" y1="${topY}" x2="${dimX + 6}" y2="${topY}" stroke="#e74c3c" stroke-width="1"/>`;
@@ -1788,24 +1910,19 @@
     </defs>`;
     svg += `<rect x="0" y="0" width="${W}" height="${H}" fill="url(#grid3)"/>`;
 
-    // Kugel
     svg += `<circle cx="${centerX}" cy="${centerY}" r="${daScaled/2}" fill="url(#sphereGrad)" stroke="#0b3b5c" stroke-width="2.5"/>`;
     svg += `<circle cx="${centerX}" cy="${centerY}" r="${daScaled/2 - sScaled}" fill="none" stroke="#1a5a82" stroke-width="1" stroke-dasharray="4,3"/>`;
 
-    // Äquatorlinie (gestrichelt)
     svg += `<ellipse cx="${centerX}" cy="${centerY}" rx="${daScaled/2}" ry="${daScaled/8}" fill="none" stroke="#94a3b8" stroke-width="0.8" stroke-dasharray="4,4"/>`;
 
-    // Stutzen oben
     const noz1W = Math.max(DN1 * scale, 8);
     svg += `<rect x="${centerX - noz1W/2}" y="${centerY - daScaled/2 - 25}" width="${noz1W}" height="25" fill="#e8eef5" stroke="#0b3b5c" stroke-width="1.5"/>`;
     svg += `<rect x="${centerX - noz1W/2 - 5}" y="${centerY - daScaled/2 - 32}" width="${noz1W + 10}" height="7" fill="#1a5a82"/>`;
 
-    // Stützen
     svg += `<rect x="${centerX - daScaled/4}" y="${centerY + daScaled/2}" width="15" height="30" fill="#64748b" stroke="#0b3b5c"/>`;
     svg += `<rect x="${centerX + daScaled/4 - 15}" y="${centerY + daScaled/2}" width="15" height="30" fill="#64748b" stroke="#0b3b5c"/>`;
     svg += `<rect x="${centerX - daScaled/2}" y="${centerY + daScaled/2 + 30}" width="${daScaled}" height="6" fill="#475569"/>`;
 
-    // Bemaßung
     svg += `<line x1="${centerX - daScaled/2}" y1="${centerY + daScaled/2 + 50}" x2="${centerX + daScaled/2}" y2="${centerY + daScaled/2 + 50}" stroke="#e74c3c" stroke-width="1"/>`;
     svg += `<line x1="${centerX - daScaled/2}" y1="${centerY + daScaled/2 + 44}" x2="${centerX - daScaled/2}" y2="${centerY + daScaled/2 + 56}" stroke="#e74c3c" stroke-width="1"/>`;
     svg += `<line x1="${centerX + daScaled/2}" y1="${centerY + daScaled/2 + 44}" x2="${centerX + daScaled/2}" y2="${centerY + daScaled/2 + 56}" stroke="#e74c3c" stroke-width="1"/>`;
@@ -1859,6 +1976,12 @@
     document.getElementById('outAlpha').textContent = m.alpha.toFixed(1) + '·10⁻⁶/K';
     document.getElementById('outSigmaZul').textContent = sigmaZul.toFixed(1) + ' MPa';
 
+    // Thermische Parameter synchronisieren
+    const inputETherm = document.getElementById('inputETherm');
+    const inputAlphaTherm = document.getElementById('inputAlphaTherm');
+    if (inputETherm) inputETherm.value = ET.toFixed(1);
+    if (inputAlphaTherm) inputAlphaTherm.value = m.alpha.toFixed(1);
+
     calcResults.sigmaZul = sigmaZul;
     calcResults.ET = ET;
     calcResults.ReT = ReT;
@@ -1866,10 +1989,7 @@
   }
 
   function updateMaterialSelect() {
-    const matKey = document.getElementById('materialSelect').value;
-    if (materials[matKey]) {
-      // Material ist bereits ausgewählt
-    }
+    // Material ist bereits ausgewählt
   }
 
   // ============================================================
@@ -1886,7 +2006,6 @@
     const RmT = interpolate(m.RmT, T);
     const sigmaZul = calcResults.sigmaZul || Math.min(ReT * 2/3, m.Rm * 5/12);
 
-    // Korrosionszuschlag
     const corrRate = parseFloat(document.getElementById('inputCorrRate').value) || 0.1;
     const life = parseFloat(document.getElementById('inputLife').value) || 20;
     const c1 = corrRate * life;
@@ -1909,7 +2028,6 @@
     else corrRec = 'Starke Korrosion – Sonderwerkstoff prüfen';
     document.getElementById('outCorrRec').textContent = corrRec;
 
-    // Kesselformel: s0 = (Pc * Da) / (20 * sigmaZul * v + Pc)
     const s0 = (Pc * Da) / (20 * sigmaZul * weldFactor + Pc);
     const sMin = s0 + c;
     const sGew = Math.ceil(sMin * 2) / 2;
@@ -1926,7 +2044,6 @@
     barRes.style.width = Math.min(Math.max(reserve, 0), 100) + '%';
     barRes.style.background = reserve >= 0 ? 'var(--accent)' : 'var(--danger)';
 
-    // Spannungsnachweis
     const sigmaM = (Pc * (Da - sGew)) / (20 * sGew);
     const utilization = (sigmaM / sigmaZul) * 100;
 
@@ -1947,7 +2064,6 @@
       stressResult.className = 'value fail';
     }
 
-    // Weitere Nachweise
     const PT = Math.max(1.25 * Pc, 1.43 * Pc);
     document.getElementById('outPT').textContent = PT.toFixed(1) + ' bar';
 
@@ -1961,6 +2077,9 @@
     document.getElementById('outSigmaZul2').textContent = sigmaZul.toFixed(1) + ' MPa';
 
     calcResults.wallThickness = { s0, sMin, sGew, sigmaM, sigmaZul, utilization, c1, c2, c, PT };
+
+    // Thermische und Mohr-Berechnungen aktualisieren
+    updateThermalAndMohr();
   }
 
   // ============================================================
@@ -1986,6 +2105,265 @@
       result.textContent = '❌ Nicht ausreichend duktil';
       result.className = 'value fail';
     }
+  }
+
+  // ============================================================
+  // THERMISCHE DEHNUNG
+  // ============================================================
+  function calculateThermalExpansion() {
+    const T0 = parseFloat(document.getElementById('inputT0').value) || 20;
+    const T1 = parseFloat(document.getElementById('inputT1').value) || 120;
+    const alpha = parseFloat(document.getElementById('inputAlphaTherm').value) || 12.0;
+    const E = parseFloat(document.getElementById('inputETherm').value) || 198;
+    const nu = parseFloat(document.getElementById('inputNu').value) || 0.3;
+    
+    const Da = parseFloat(document.getElementById('inputDa').value) || 800;
+    const L = parseFloat(document.getElementById('inputL').value) || 2000;
+    const s = parseFloat(document.getElementById('inputS').value) || 8;
+    
+    const deltaT = T1 - T0;
+    const epsTh = alpha * 1e-6 * deltaT;
+    
+    const epsAxial = epsTh;
+    const epsRadial = epsTh;
+    
+    const deltaL = epsAxial * L;
+    const deltaDa = epsRadial * Da;
+    const deltaS = epsRadial * s;
+    
+    const sigmaThAx = (E * 1000 * epsTh) / (1 - nu);
+    const sigmaThRad = (E * 1000 * epsTh) / (1 - nu);
+    const sigmaThTan = sigmaThAx;
+    const sigmaTh = E * 1000 * epsTh;
+    
+    const sigmaThV = Math.sqrt(
+      sigmaThAx * sigmaThAx + sigmaThTan * sigmaThTan + sigmaThRad * sigmaThRad -
+      sigmaThAx * sigmaThTan - sigmaThTan * sigmaThRad - sigmaThRad * sigmaThAx
+    );
+    
+    document.getElementById('outDeltaT').textContent = deltaT.toFixed(1) + ' K';
+    document.getElementById('outEpsTh').textContent = (epsTh * 100).toFixed(4) + ' %';
+    document.getElementById('outEpsAxial').textContent = (epsAxial * 100).toFixed(4) + ' %';
+    document.getElementById('outEpsRadial').textContent = (epsRadial * 100).toFixed(4) + ' %';
+    document.getElementById('outDeltaL').textContent = deltaL.toFixed(2) + ' mm';
+    document.getElementById('outDeltaDa').textContent = deltaDa.toFixed(2) + ' mm';
+    document.getElementById('outDeltaS').textContent = deltaS.toFixed(3) + ' mm';
+    document.getElementById('outSigmaTh').textContent = sigmaTh.toFixed(1) + ' MPa';
+    document.getElementById('outSigmaThAx').textContent = sigmaThAx.toFixed(1) + ' MPa';
+    document.getElementById('outSigmaThRad').textContent = sigmaThRad.toFixed(1) + ' MPa';
+    document.getElementById('outSigmaThV').textContent = sigmaThV.toFixed(1) + ' MPa';
+    
+    const sigmaZul = calcResults.sigmaZul || 150;
+    const thermResult = document.getElementById('outThermResult');
+    if (sigmaThV <= sigmaZul) {
+      thermResult.textContent = '✅ Thermische Spannungen zulässig';
+      thermResult.className = 'value ok';
+    } else {
+      thermResult.textContent = '⚠️ Thermische Spannungen erhöht – prüfen!';
+      thermResult.className = 'value warn';
+    }
+    
+    calcResults.thermal = {
+      deltaT, epsTh, epsAxial, epsRadial, deltaL, deltaDa, deltaS,
+      sigmaTh, sigmaThAx, sigmaThRad, sigmaThV, sigmaThTan
+    };
+    
+    return calcResults.thermal;
+  }
+
+  // ============================================================
+  // MOHRSCHER SPANNUNGSKREIS
+  // ============================================================
+  function calculateMohrCircle() {
+    const Pc = parseFloat(document.getElementById('inputPc').value) || 16;
+    const Da = parseFloat(document.getElementById('inputDa').value) || 800;
+    const s = parseFloat(document.getElementById('inputS').value) || 8;
+    const matKey = document.getElementById('materialSelect').value;
+    const m = materials[matKey];
+    
+    const Di = Da - 2 * s;
+    
+    // Tangentialspannung (Umfangsspannung) in MPa
+    const sigmaTheta = (Pc * Di) / (2 * s);
+    
+    // Axialspannung (Längsspannung) in MPa
+    const sigmaAxial = (Pc * Di) / (4 * s);
+    
+    // Radialspannung (Innendruck) in MPa
+    const sigmaRadial = -Pc * 0.1;
+    
+    // Thermische Spannungen hinzufügen (falls vorhanden)
+    const thermal = calcResults.thermal || { sigmaThAx: 0, sigmaThRad: 0, sigmaThTan: 0 };
+    
+    // Gesamtspannungen
+    const sigmaX = sigmaAxial + (thermal.sigmaThAx || 0);
+    const sigmaY = sigmaTheta + (thermal.sigmaThTan || 0);
+    const sigmaZ = sigmaRadial + (thermal.sigmaThRad || 0);
+    
+    const tauXY = 0;
+    
+    // Hauptspannungen (2D-Ansatz für die Ebene x-y)
+    const sigmaM = (sigmaX + sigmaY) / 2;
+    const radius = Math.sqrt(Math.pow((sigmaX - sigmaY) / 2, 2) + tauXY * tauXY);
+    
+    const sigma1 = sigmaM + radius;
+    const sigma2 = sigmaM - radius;
+    const sigma3 = sigmaZ;
+    
+    // Sortierung der Hauptspannungen
+    const sigmas = [sigma1, sigma2, sigma3].sort((a, b) => b - a);
+    const s1 = sigmas[0];
+    const s2 = sigmas[1];
+    const s3 = sigmas[2];
+    
+    const tauMax = (s1 - s3) / 2;
+    
+    const sigmaVMises = Math.sqrt(
+      0.5 * (Math.pow(s1 - s2, 2) + Math.pow(s2 - s3, 2) + Math.pow(s3 - s1, 2))
+    );
+    
+    const sigmaVTresca = s1 - s3;
+    
+    const sigmaZul = calcResults.sigmaZul || 150;
+    const utilization = (sigmaVMises / sigmaZul) * 100;
+    
+    document.getElementById('outSigma1').textContent = s1.toFixed(1) + ' MPa';
+    document.getElementById('outSigma2').textContent = s2.toFixed(1) + ' MPa';
+    document.getElementById('outSigma3').textContent = s3.toFixed(1) + ' MPa';
+    document.getElementById('outTauMax').textContent = tauMax.toFixed(1) + ' MPa';
+    document.getElementById('outSigmaVMises').textContent = sigmaVMises.toFixed(1) + ' MPa';
+    document.getElementById('outSigmaVTresca').textContent = sigmaVTresca.toFixed(1) + ' MPa';
+    document.getElementById('outMohrUtil').textContent = utilization.toFixed(1) + ' %';
+    
+    document.getElementById('outSigX').textContent = sigmaX.toFixed(1) + ' MPa';
+    document.getElementById('outSigY').textContent = sigmaY.toFixed(1) + ' MPa';
+    document.getElementById('outSigZ2').textContent = sigmaZ.toFixed(1) + ' MPa';
+    document.getElementById('outTauXY').textContent = tauXY.toFixed(1) + ' MPa';
+    document.getElementById('outSigM2').textContent = sigmaM.toFixed(1) + ' MPa';
+    document.getElementById('outSigB').textContent = '0.0 MPa';
+    
+    const mohrResult = document.getElementById('outMohrResult');
+    if (utilization <= 100) {
+      mohrResult.textContent = '✅ Nachweis erbracht';
+      mohrResult.className = 'value ok';
+    } else {
+      mohrResult.textContent = '❌ Nachweis nicht erbracht';
+      mohrResult.className = 'value fail';
+    }
+    
+    drawMohrCircle(s1, s2, s3, sigmaM, radius);
+    
+    calcResults.mohr = {
+      sigmaX, sigmaY, sigmaZ, tauXY, sigmaM, radius,
+      sigma1: s1, sigma2: s2, sigma3: s3,
+      tauMax, sigmaVMises, sigmaVTresca, utilization
+    };
+    
+    return calcResults.mohr;
+  }
+
+  // ============================================================
+  // MOHR-KREIS ZEICHNEN
+  // ============================================================
+  function drawMohrCircle(s1, s2, s3, center, radius) {
+    const container = document.getElementById('mohrContainer');
+    if (!container) return;
+    
+    const W = 700, H = 400;
+    const padL = 80, padR = 60, padT = 55, padB = 60;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    
+    const maxStress = Math.max(Math.abs(s1), Math.abs(s3), Math.abs(s2), 10) * 1.25;
+    const minStress = Math.min(s3, 0) * 1.25;
+    
+    const xMin = minStress;
+    const xMax = maxStress;
+    const yMax = maxStress;
+    const yMin = -yMax;
+    
+    const xScale = (val) => padL + ((val - xMin) / (xMax - xMin)) * plotW;
+    const yScale = (val) => H - padB - ((val - yMin) / (yMax - yMin)) * plotH;
+    
+    let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+    
+    svg += `<rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="#f8fafc" stroke="#cbd5e1"/>`;
+    
+    const xTicks = 6;
+    for (let i = 0; i <= xTicks; i++) {
+      const val = xMin + (i / xTicks) * (xMax - xMin);
+      const x = xScale(val);
+      svg += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${H-padB}" stroke="#e2e8f0" stroke-width="1"/>`;
+      svg += `<text x="${x}" y="${H-padB+18}" text-anchor="middle" font-size="9" fill="#475569">${val.toFixed(0)}</text>`;
+    }
+    
+    const yTicks = 6;
+    for (let i = 0; i <= yTicks; i++) {
+      const val = yMin + (i / yTicks) * (yMax - yMin);
+      const y = yScale(val);
+      svg += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+      svg += `<text x="${padL-8}" y="${y+3}" text-anchor="end" font-size="9" fill="#475569">${val.toFixed(0)}</text>`;
+    }
+    
+    svg += `<line x1="${padL}" y1="${yScale(0)}" x2="${W-padR}" y2="${yScale(0)}" stroke="#1e293b" stroke-width="1.5"/>`;
+    svg += `<line x1="${xScale(0)}" y1="${padT}" x2="${xScale(0)}" y2="${H-padB}" stroke="#1e293b" stroke-width="1.5"/>`;
+    
+    svg += `<text x="${padL + plotW/2}" y="${H-5}" text-anchor="middle" font-size="11" font-weight="600" fill="#0b3b5c">Normalspannung σ (MPa)</text>`;
+    svg += `<text x="15" y="${padT + plotH/2}" text-anchor="middle" font-size="11" font-weight="600" fill="#0b3b5c" transform="rotate(-90 15 ${padT + plotH/2})">Schubspannung τ (MPa)</text>`;
+    
+    const cx = xScale(center);
+    const cy = yScale(0);
+    const r = Math.abs(xScale(center + radius) - xScale(center));
+    
+    svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e74c3c" stroke-width="2.5"/>`;
+    
+    const center12 = (s1 + s2) / 2;
+    const r12 = Math.abs((s1 - s2) / 2);
+    const cx12 = xScale(center12);
+    const r12s = Math.abs(xScale(center12 + r12) - xScale(center12));
+    svg += `<circle cx="${cx12}" cy="${cy}" r="${r12s}" fill="none" stroke="#3498db" stroke-width="1.5" stroke-dasharray="4,2"/>`;
+    
+    const center23 = (s2 + s3) / 2;
+    const r23 = Math.abs((s2 - s3) / 2);
+    const cx23 = xScale(center23);
+    const r23s = Math.abs(xScale(center23 + r23) - xScale(center23));
+    svg += `<circle cx="${cx23}" cy="${cy}" r="${r23s}" fill="none" stroke="#2ecc71" stroke-width="1.5" stroke-dasharray="4,2"/>`;
+    
+    [s1, s2, s3].forEach((s, i) => {
+      const x = xScale(s);
+      svg += `<circle cx="${x}" cy="${cy}" r="4" fill="#0b3b5c"/>`;
+      svg += `<text x="${x}" y="${cy - 10}" text-anchor="middle" font-size="10" font-weight="700" fill="#0b3b5c">σ${i+1}</text>`;
+      svg += `<text x="${x}" y="${cy + 18}" text-anchor="middle" font-size="9" fill="#475569">${s.toFixed(1)}</text>`;
+    });
+    
+    const tauMaxY = yScale((s1 - s3) / 2);
+    const tauMaxX = xScale((s1 + s3) / 2);
+    svg += `<circle cx="${tauMaxX}" cy="${tauMaxY}" r="4" fill="#f39c12"/>`;
+    svg += `<text x="${tauMaxX + 10}" y="${tauMaxY - 8}" font-size="10" font-weight="600" fill="#f39c12">τ_max</text>`;
+    
+    svg += `<circle cx="${xScale(0)}" cy="${yScale(0)}" r="3" fill="#1e293b"/>`;
+    
+    svg += `<text x="${W/2}" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#0b3b5c">Mohrscher Spannungskreis (3D-Ansatz)</text>`;
+    svg += `<text x="${W/2}" y="38" text-anchor="middle" font-size="9" fill="#64748b">σ₁ = ${s1.toFixed(1)} MPa | σ₂ = ${s2.toFixed(1)} MPa | σ₃ = ${s3.toFixed(1)} MPa | τ_max = ${((s1-s3)/2).toFixed(1)} MPa</text>`;
+    
+    svg += `<line x1="${W-padR-180}" y1="${padT+15}" x2="${W-padR-160}" y2="${padT+15}" stroke="#e74c3c" stroke-width="2.5"/>`;
+    svg += `<text x="${W-padR-155}" y="${padT+19}" font-size="9" fill="#1e293b">σ₁-σ₃ Kreis</text>`;
+    
+    svg += `<line x1="${W-padR-180}" y1="${padT+30}" x2="${W-padR-160}" y2="${padT+30}" stroke="#3498db" stroke-width="1.5" stroke-dasharray="4,2"/>`;
+    svg += `<text x="${W-padR-155}" y="${padT+34}" font-size="9" fill="#1e293b">σ₁-σ₂ Kreis</text>`;
+    
+    svg += `<line x1="${W-padR-180}" y1="${padT+45}" x2="${W-padR-160}" y2="${padT+45}" stroke="#2ecc71" stroke-width="1.5" stroke-dasharray="4,2"/>`;
+    svg += `<text x="${W-padR-155}" y="${padT+49}" font-size="9" fill="#1e293b">σ₂-σ₃ Kreis</text>`;
+    
+    svg += `</svg>`;
+    container.innerHTML = svg;
+  }
+
+  // ============================================================
+  // THERMISCHE UND MOHR-BERECHNUNGEN AKTUALISIEREN
+  // ============================================================
+  function updateThermalAndMohr() {
+    calculateThermalExpansion();
+    calculateMohrCircle();
   }
 
   // ============================================================
@@ -2110,30 +2488,25 @@
     svg += `<text x="${padL + plotW/2}" y="${H-5}" text-anchor="middle" font-size="11" font-weight="600" fill="#0b3b5c">Dehnung ε (%)</text>`;
     svg += `<text x="15" y="${padT + plotH/2}" text-anchor="middle" font-size="11" font-weight="600" fill="#0b3b5c" transform="rotate(-90 15 ${padT + plotH/2})">Spannung σ (MPa)</text>`;
 
-    // Spannungs-Dehnungs-Kurve (vereinfacht)
-    const E = m.E * 1000; // MPa
+    const E = m.E * 1000;
     const Re = m.Re;
     const Rm = m.Rm;
-    const Ag = 15; // Gleichmaßdehnung
-    const A = 22; // Bruchdehnung
+    const Ag = 15;
+    const A = 22;
 
     let path = '';
-    // Elastischer Bereich
     const epsY = (Re / E) * 100;
     path += `M ${xScale(0)} ${yScale(0)}`;
     path += ` L ${xScale(epsY)} ${yScale(Re)}`;
-    // Plastischer Bereich (vereinfacht)
     path += ` Q ${xScale(epsY + 2)} ${yScale(Re * 1.02)} ${xScale(5)} ${yScale(Re * 1.1)}`;
     path += ` Q ${xScale(10)} ${yScale(Rm * 0.95)} ${xScale(Ag)} ${yScale(Rm)}`;
     path += ` L ${xScale(A)} ${yScale(Rm * 0.85)}`;
 
     svg += `<path d="${path}" fill="none" stroke="#e74c3c" stroke-width="2.5"/>`;
 
-    // Streckgrenze markieren
     svg += `<line x1="${padL}" y1="${yScale(Re)}" x2="${W-padR}" y2="${yScale(Re)}" stroke="#f39c12" stroke-dasharray="5,3" stroke-width="1"/>`;
     svg += `<text x="${W-padR-5}" y="${yScale(Re)-5}" text-anchor="end" font-size="10" fill="#f39c12" font-weight="600">Re = ${Re} MPa</text>`;
 
-    // Zugfestigkeit markieren
     svg += `<line x1="${padL}" y1="${yScale(Rm)}" x2="${W-padR}" y2="${yScale(Rm)}" stroke="#3498db" stroke-dasharray="5,3" stroke-width="1"/>`;
     svg += `<text x="${W-padR-5}" y="${yScale(Rm)-5}" text-anchor="end" font-size="10" fill="#3498db" font-weight="600">Rm = ${Rm} MPa</text>`;
 
@@ -2240,6 +2613,18 @@
       html += `<li>Spannungsnachweis: <strong>${wt.utilization.toFixed(0)} %</strong> Auslastung</li>`;
       html += `<li>Prüfdruck PT: <strong>${wt.PT.toFixed(1)} bar</strong></li>`;
     }
+    if (calcResults.thermal) {
+      const th = calcResults.thermal;
+      html += `<li>Thermische Dehnung: <strong>${(th.epsTh * 100).toFixed(4)} %</strong> (ΔT = ${th.deltaT.toFixed(0)} K)</li>`;
+      html += `<li>Längenänderung: <strong>${th.deltaL.toFixed(2)} mm</strong> | Durchmesseränderung: <strong>${th.deltaDa.toFixed(2)} mm</strong></li>`;
+      html += `<li>Thermische Vergleichsspannung: <strong>${th.sigmaThV.toFixed(1)} MPa</strong></li>`;
+    }
+    if (calcResults.mohr) {
+      const mo = calcResults.mohr;
+      html += `<li>Hauptspannungen: σ₁ = <strong>${mo.sigma1.toFixed(1)} MPa</strong>, σ₂ = <strong>${mo.sigma2.toFixed(1)} MPa</strong>, σ₃ = <strong>${mo.sigma3.toFixed(1)} MPa</strong></li>`;
+      html += `<li>Max. Schubspannung τ_max: <strong>${mo.tauMax.toFixed(1)} MPa</strong></li>`;
+      html += `<li>Vergleichsspannung (v. Mises): <strong>${mo.sigmaVMises.toFixed(1)} MPa</strong> (${mo.utilization.toFixed(0)} % Auslastung)</li>`;
+    }
     html += `<li>Gewähltes Modul: <strong>Modul ${selectedModule}</strong></li>`;
     html += `<li>Erfüllte Prüfpunkte: <strong>${checked} von ${total}</strong></li>`;
     html += `<li>Konformitätsgrad: <strong>${percent}%</strong></li>`;
@@ -2279,6 +2664,11 @@
     document.getElementById('inputCorrRate').value = 0.1;
     document.getElementById('inputElongation').value = 22;
     document.getElementById('inputImpact').value = 45;
+    document.getElementById('inputT0').value = 20;
+    document.getElementById('inputT1').value = 120;
+    document.getElementById('inputAlphaTherm').value = 12.0;
+    document.getElementById('inputETherm').value = 198;
+    document.getElementById('inputNu').value = 0.3;
     document.querySelector('input[name="isAssembly"][value="nein"]').checked = true;
     document.querySelector('input[name="exclusion"][value="nein"]').checked = true;
     document.getElementById('fluidGroup').value = '2';
@@ -2306,15 +2696,18 @@
   calculateMaterialValues();
   calculateWallThickness();
   calculateDuctility();
+  renderModuleChecklist();
 
   // Event-Listener
   document.getElementById('moduleSelect').addEventListener('change', function() {
     selectedModule = this.value;
+    renderModuleChecklist();
   });
 
   document.getElementById('materialSelect').addEventListener('change', function() {
     calculateMaterialValues();
     calculateWallThickness();
+    updateThermalAndMohr();
     if (currentStep === 5) renderStressStrainDiagram();
   });
 
@@ -2334,6 +2727,15 @@
 
   document.getElementById('inputElongation').addEventListener('input', calculateDuctility);
   document.getElementById('inputImpact').addEventListener('input', calculateDuctility);
+
+  // Live-Updates für thermische Berechnungen
+  ['inputT0', 'inputT1', 'inputAlphaTherm', 'inputETherm', 'inputNu'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => { if (currentStep === 4) updateThermalAndMohr(); });
+      el.addEventListener('change', () => { if (currentStep === 4) updateThermalAndMohr(); });
+    }
+  });
 
   // Tabs
   document.querySelectorAll('#materialTabs .tab').forEach(tab => {
@@ -2369,6 +2771,11 @@
 
   calculateClassification();
   updateDiagram();
+
+  // Initiale thermische und Mohr-Berechnungen
+  setTimeout(() => {
+    updateThermalAndMohr();
+  }, 100);
 
 })();
 </script>
